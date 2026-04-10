@@ -19,5 +19,8 @@ jobs:
           docker compose pull
           docker compose up -d --remove-orphans
 
+      - name: Reload Caddy config
+        run: docker exec caddy caddy reload --config /etc/caddy/Caddyfile
+
       - name: Cleanup old images
         run: docker image prune -f
