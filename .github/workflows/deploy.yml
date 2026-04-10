@@ -1,4 +1,4 @@
-name: Deploy para servidor
+name: Deploy to server
 
 on:
   push:
@@ -6,17 +6,18 @@ on:
 
 jobs:
   deploy:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
-      - name: Deploy via SSH
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.SERVER_HOST }}
-          username: ${{ secrets.SERVER_USER }}
-          key: ${{ secrets.SERVER_SSH_KEY }}
-          script: |
-            cd /opt/home-clabfs
-            git pull origin main
-            docker compose pull
-            docker compose up -d --remove-orphans
-            docker image prune -f
+      - name: Pull latest changes
+        run: |
+          cd /opt/home-clabfs
+          git pull origin main
+
+      - name: Apply Docker services
+        run: |
+          cd /opt/home-clabfs
+          docker compose pull
+          docker compose up -d --remove-orphans
+
+      - name: Cleanup old images
+        run: docker image prune -f
