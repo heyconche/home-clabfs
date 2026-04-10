@@ -1,3 +1,17 @@
+# Dashboard principal
+conche.com.br {
+    # Proxy da API de stats (Glances) — acessível só internamente via este path
+    handle /stats/* {
+        uri strip_prefix /stats
+        reverse_proxy glances:61208
+    }
+
+    # Dashboard
+    handle {
+        reverse_proxy dashboard:80
+    }
+}
+
 # Filebrowser
 nfs.conche.com.br {
     reverse_proxy filebrowser:80

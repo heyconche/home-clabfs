@@ -1,5 +1,27 @@
 services:
 
+  # ── Dashboard (página inicial com stats) ───────────────────────────────────
+  dashboard:
+    image: nginx:alpine
+    container_name: dashboard
+    restart: unless-stopped
+    volumes:
+      - ./dashboard:/usr/share/nginx/html:ro
+    networks: [clabfs]
+
+  # ── Glances (API de stats do servidor) ─────────────────────────────────────
+  glances:
+    image: nicolargo/glances:latest
+    container_name: glances
+    restart: unless-stopped
+    pid: host
+    environment:
+      - GLANCES_OPT=-w
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /mnt/nas:/mnt/nas:ro
+    networks: [clabfs]
+
   # ── Caddy (reverse proxy + HTTPS automático) ────────────────────────────────
   caddy:
     image: caddy:2-alpine

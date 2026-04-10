@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>conche.com.br</title>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --bg:      #0f172a;
+            --surface: #1e293b;
+            --border:  #334155;
+            --text:    #f1f5f9;
+            --muted:   #94a3b8;
+            --accent:  #3b82f6;
+            --green:   #22c55e;
+            --yellow:  #eab308;
+            --red:     #ef4444;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            padding: 2.5rem 2rem;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 3rem;
+        }
+
+        header h1 {
+            font-size: 1.6rem;
+            font-weight: 800;
+            letter-spacing: -0.03em;
+        }
+
+        header h1 span { color: var(--accent); }
+
+        #uptime {
+            font-size: 0.8rem;
+            color: var(--muted);
+            background: var(--surface);
+            border: 1px solid var(--border);
+            padding: 0.3rem 0.75rem;
+            border-radius: 9999px;
+        }
+
+        section { margin-bottom: 2.5rem; }
+
+        h2 {
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            color: var(--muted);
+            margin-bottom: 1rem;
+        }
+
+        /* ── Services ──────────────────────────────────────────────────────── */
+        .services {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+            gap: 1rem;
+        }
+
+        .service-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.6rem;
+            padding: 1.5rem 1rem;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 0.875rem;
+            text-decoration: none;
+            color: var(--text);
+            transition: border-color 0.15s ease, transform 0.15s ease;
+        }
+
+        .service-card:hover {
+            border-color: var(--accent);
+            transform: translateY(-3px);
+        }
+
+        .service-icon { font-size: 2.2rem; }
+
+        .service-name {
+            font-weight: 700;
+            font-size: 1rem;
+        }
+
+        .service-desc {
+            font-size: 0.72rem;
+            color: var(--muted);
+            text-align: center;
+        }
+
+        /* ── Stats ─────────────────────────────────────────────────────────── */
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+            gap: 1rem;
+        }
+
+        .stat-card {
+            padding: 1.25rem 1.375rem;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 0.875rem;
+        }
+
+        .stat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            margin-bottom: 0.4rem;
+        }
+
+        .stat-label { font-size: 0.8rem; color: var(--muted); font-weight: 500; }
+
+        .stat-value { font-size: 1.4rem; font-weight: 800; }
+
+        .stat-detail {
+            font-size: 0.72rem;
+            color: var(--muted);
+            margin-bottom: 0.6rem;
+        }
+
+        .progress-bar {
+            height: 5px;
+            background: var(--border);
+            border-radius: 9999px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            border-radius: 9999px;
+            background: var(--green);
+            transition: width 0.6s ease, background 0.3s;
+        }
+
+        .progress-fill.warn   { background: var(--yellow); }
+        .progress-fill.danger { background: var(--red); }
+
+        /* ── Footer ────────────────────────────────────────────────────────── */
+        footer {
+            text-align: center;
+            font-size: 0.72rem;
+            color: var(--muted);
+            margin-top: 3rem;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1><span>conche</span>.com.br</h1>
+    <span id="uptime">⬆ carregando…</span>
+</header>
+
+<section>
+    <h2>Serviços</h2>
+    <div class="services">
+        <a class="service-card" href="https://nfs.conche.com.br" target="_blank">
+            <span class="service-icon">📁</span>
+            <span class="service-name">NFS</span>
+            <span class="service-desc">Arquivos do servidor</span>
+        </a>
+        <a class="service-card" href="https://cofre.conche.com.br" target="_blank">
+            <span class="service-icon">🔐</span>
+            <span class="service-name">Cofre</span>
+            <span class="service-desc">Gerenciador de senhas</span>
+        </a>
+        <a class="service-card" href="https://soul.conche.com.br" target="_blank">
+            <span class="service-icon">✍️</span>
+            <span class="service-name">Soul</span>
+            <span class="service-desc">Blog</span>
+        </a>
+        <a class="service-card" href="https://fotos.conche.com.br" target="_blank">
+            <span class="service-icon">📸</span>
+            <span class="service-name">Fotos</span>
+            <span class="service-desc">Galeria de fotos</span>
+        </a>
+    </div>
+</section>
+
+<section>
+    <h2>Servidor — srvclabfs001</h2>
+    <div class="stats">
+
+        <div class="stat-card">
+            <div class="stat-header">
+                <span class="stat-label">CPU</span>
+                <span class="stat-value" id="cpu-pct">—</span>
+            </div>
+            <div class="stat-detail" id="cpu-detail">aguardando…</div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="cpu-bar" style="width:0%"></div>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-header">
+                <span class="stat-label">Memória</span>
+                <span class="stat-value" id="mem-pct">—</span>
+            </div>
+            <div class="stat-detail" id="mem-detail">aguardando…</div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="mem-bar" style="width:0%"></div>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-header">
+                <span class="stat-label">NAS</span>
+                <span class="stat-value" id="disk-pct">—</span>
+            </div>
+            <div class="stat-detail" id="disk-detail">aguardando…</div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="disk-bar" style="width:0%"></div>
+            </div>
+        </div>
+
+    </div>
+</section>
+
+<footer>
+    atualizado às <span id="last-update">—</span> &nbsp;·&nbsp; refresh a cada 30s
+</footer>
+
+<script>
+    function fmt(bytes, dec = 1) {
+        if (!bytes) return '0 B';
+        const k = 1024, sizes = ['B','KB','MB','GB','TB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return (bytes / Math.pow(k, i)).toFixed(dec) + ' ' + sizes[i];
+    }
+
+    function colorClass(pct) {
+        if (pct >= 90) return 'danger';
+        if (pct >= 70) return 'warn';
+        return '';
+    }
+
+    function setBar(id, pct) {
+        const el = document.getElementById(id);
+        el.style.width = pct + '%';
+        el.className = 'progress-fill ' + colorClass(pct);
+    }
+
+    async function fetchStats() {
+        try {
+            const [cpu, mem, fs, uptime] = await Promise.all([
+                fetch('/stats/api/3/cpu').then(r => r.json()),
+                fetch('/stats/api/3/mem').then(r => r.json()),
+                fetch('/stats/api/3/fs').then(r => r.json()),
+                fetch('/stats/api/3/uptime').then(r => r.json()),
+            ]);
+
+            // CPU
+            const cpuPct = Math.round(cpu.total);
+            document.getElementById('cpu-pct').textContent = cpuPct + '%';
+            document.getElementById('cpu-detail').textContent =
+                `${cpu.user.toFixed(1)}% user · ${cpu.system.toFixed(1)}% system`;
+            setBar('cpu-bar', cpuPct);
+
+            // Memory
+            const memPct = Math.round(mem.percent);
+            document.getElementById('mem-pct').textContent = memPct + '%';
+            document.getElementById('mem-detail').textContent =
+                `${fmt(mem.used)} usados de ${fmt(mem.total)}`;
+            setBar('mem-bar', memPct);
+
+            // Disk — /mnt/nas ou fallback pro maior disco
+            const nas = fs.find(f => f.mnt_point === '/mnt/nas')
+                      || fs.sort((a,b) => b.size - a.size)[0];
+            if (nas) {
+                const diskPct = Math.round(nas.percent);
+                document.getElementById('disk-pct').textContent = diskPct + '%';
+                document.getElementById('disk-detail').textContent =
+                    `${fmt(nas.used)} usados de ${fmt(nas.size)}`;
+                setBar('disk-bar', diskPct);
+            }
+
+            // Uptime
+            document.getElementById('uptime').textContent = '⬆ ' + uptime;
+
+            // Timestamp
+            document.getElementById('last-update').textContent =
+                new Date().toLocaleTimeString('pt-BR');
+
+        } catch (e) {
+            ['cpu-pct','mem-pct','disk-pct'].forEach(id => {
+                document.getElementById(id).textContent = '—';
+            });
+        }
+    }
+
+    fetchStats();
+    setInterval(fetchStats, 30000);
+</script>
+</body>
+</html>
