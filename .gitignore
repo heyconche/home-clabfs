@@ -1,0 +1,12 @@
+# Segredos - NUNCA commitar
+.env
+
+# Banco de dados local do filebrowser
+filebrowser/filebrowser.db
+
+# Logs
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
