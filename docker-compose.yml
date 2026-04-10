@@ -21,7 +21,7 @@ services:
     restart: unless-stopped
     volumes:
       - /mnt/nas:/srv
-      - ./filebrowser/filebrowser.db:/database/filebrowser.db
+      - filebrowser_db:/database
       - ./filebrowser/settings.json:/.filebrowser.json
     networks: [clabfs]
 
@@ -111,6 +111,7 @@ volumes:
   caddy_data:
   caddy_config:
   immich_model_cache:
+  filebrowser_db:
 
 networks:
   clabfs:

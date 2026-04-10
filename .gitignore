@@ -1,7 +1,7 @@
 # Segredos - NUNCA commitar
 .env
 
-# Banco de dados local do filebrowser
+# Banco de dados do filebrowser (agora em volume Docker)
 filebrowser/filebrowser.db
 
 # Logs
