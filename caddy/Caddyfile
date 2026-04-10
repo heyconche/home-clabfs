@@ -1,24 +1,19 @@
 # Filebrowser
-files.conche.com.br {
+nfs.conche.com.br {
     reverse_proxy filebrowser:80
 }
 
 # Vaultwarden
-vault.conche.com.br {
+cofre.conche.com.br {
     reverse_proxy vaultwarden:80
 }
 
 # Ghost (blog)
-blog.conche.com.br {
+soul.conche.com.br {
     reverse_proxy ghost:2368
 }
 
 # Immich (fotos)
-photos.conche.com.br {
-    reverse_proxy immich-server:3001
-}
-
-# Nextcloud
-cloud.conche.com.br {
-    reverse_proxy nextcloud:80
+fotos.conche.com.br {
+    reverse_proxy immich-server:2283
 }

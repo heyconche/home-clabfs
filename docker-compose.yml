@@ -14,7 +14,7 @@ services:
       - caddy_config:/config
     networks: [clabfs]
 
-  # ── Filebrowser (acesso web tipo Google Drive) ──────────────────────────────
+  # ── Filebrowser (acesso web ao NAS) ────────────────────────────────────────
   filebrowser:
     image: filebrowser/filebrowser:latest
     container_name: filebrowser
@@ -25,13 +25,13 @@ services:
       - ./filebrowser/settings.json:/.filebrowser.json
     networks: [clabfs]
 
-  # ── Vaultwarden (senhas) ────────────────────────────────────────────────────
+  # ── Vaultwarden (cofre de senhas) ──────────────────────────────────────────
   vaultwarden:
     image: vaultwarden/server:latest
     container_name: vaultwarden
     restart: unless-stopped
     environment:
-      - DOMAIN=https://vault.conche.com.br
+      - DOMAIN=https://cofre.conche.com.br
       - SIGNUPS_ALLOWED=false
       - ADMIN_TOKEN=${VAULTWARDEN_ADMIN_TOKEN}
     volumes:
@@ -44,7 +44,7 @@ services:
     container_name: ghost
     restart: unless-stopped
     environment:
-      - url=https://blog.conche.com.br
+      - url=https://soul.conche.com.br
       - database__client=sqlite3
       - database__connection__filename=/var/lib/ghost/content/data/ghost.db
     volumes:
@@ -91,20 +91,6 @@ services:
       - POSTGRES_DB=immich
     volumes:
       - /mnt/nas/immich-db:/var/lib/postgresql/data
-    networks: [clabfs]
-
-  # ── Nextcloud ───────────────────────────────────────────────────────────────
-  nextcloud:
-    image: nextcloud:28-apache
-    container_name: nextcloud
-    restart: unless-stopped
-    environment:
-      - NEXTCLOUD_TRUSTED_DOMAINS=cloud.conche.com.br
-      - NEXTCLOUD_ADMIN_USER=${NEXTCLOUD_ADMIN_USER}
-      - NEXTCLOUD_ADMIN_PASSWORD=${NEXTCLOUD_ADMIN_PASSWORD}
-      - SQLITE_DATABASE=nextcloud
-    volumes:
-      - /mnt/nas/nextcloud:/var/www/html
     networks: [clabfs]
 
 volumes:
