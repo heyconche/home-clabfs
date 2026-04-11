@@ -1,38 +1,64 @@
-# InfraDash (custo multi-cloud)
-cloud.conche.com.br {
-    reverse_proxy infradash:5000
+# Snippet reutilizável — forward_auth para todos os sites protegidos
+(protected) {
+    forward_auth auth:5001 {
+        uri /verify
+    }
 }
 
-# Dashboard principal
+# ── Dashboard principal ────────────────────────────────────────────────────────
 conche.com.br {
-    # Proxy da API de stats (Glances) — acessível só internamente via este path
-    handle /stats/* {
-        uri strip_prefix /stats
-        reverse_proxy glances:61208
+    # Rotas públicas do auth (sem proteção)
+    handle /login* {
+        reverse_proxy auth:5001
+    }
+    handle /logout* {
+        reverse_proxy auth:5001
     }
 
-    # Dashboard
+    # Stats do Glances (protegido, com strip de prefixo)
+    handle /stats/* {
+        route {
+            import protected
+            uri strip_prefix /stats
+            reverse_proxy glances:61208
+        }
+    }
+
+    # Dashboard (protegido)
     handle {
+        import protected
         reverse_proxy dashboard:80
     }
 }
 
-# Filebrowser
+# ── Filebrowser ────────────────────────────────────────────────────────────────
 nfs.conche.com.br {
-    reverse_proxy filebrowser:80
+    import protected
+    reverse_proxy filebrowser:80 {
+        header_up X-Auth-User "admin"
+    }
 }
 
-# Vaultwarden
+# ── Vaultwarden ────────────────────────────────────────────────────────────────
 cofre.conche.com.br {
+    import protected
     reverse_proxy vaultwarden:80
 }
 
-# Ghost (blog)
+# ── Ghost ──────────────────────────────────────────────────────────────────────
 soul.conche.com.br {
+    import protected
     reverse_proxy ghost:2368
 }
 
-# Immich (fotos)
+# ── Immich ─────────────────────────────────────────────────────────────────────
 fotos.conche.com.br {
+    import protected
     reverse_proxy immich-server:2283
+}
+
+# ── InfraDash ──────────────────────────────────────────────────────────────────
+cloud.conche.com.br {
+    import protected
+    reverse_proxy infradash:5000
 }

@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login — conche.com.br</title>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --bg:      #0f172a;
+            --surface: #1e293b;
+            --border:  #334155;
+            --text:    #f1f5f9;
+            --muted:   #94a3b8;
+            --accent:  #3b82f6;
+            --red:     #ef4444;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+        }
+
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 1rem;
+            padding: 2.5rem 2rem;
+            width: 100%;
+            max-width: 380px;
+        }
+
+        .logo {
+            font-size: 1.4rem;
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            margin-bottom: 0.25rem;
+        }
+        .logo span { color: var(--accent); }
+
+        .subtitle {
+            font-size: 0.8rem;
+            color: var(--muted);
+            margin-bottom: 2rem;
+        }
+
+        .error {
+            background: rgba(239,68,68,0.1);
+            border: 1px solid rgba(239,68,68,0.3);
+            color: var(--red);
+            font-size: 0.8rem;
+            border-radius: 0.5rem;
+            padding: 0.6rem 0.875rem;
+            margin-bottom: 1.25rem;
+        }
+
+        .field {
+            margin-bottom: 1rem;
+        }
+
+        label {
+            display: block;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--muted);
+            margin-bottom: 0.4rem;
+            text-transform: uppercase;
+            letter-spacing: 0.07em;
+        }
+
+        input[type="text"],
+        input[type="password"] {
+            width: 100%;
+            padding: 0.65rem 0.875rem;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            color: var(--text);
+            font-size: 0.95rem;
+            outline: none;
+            transition: border-color 0.15s;
+        }
+
+        input[type="text"]:focus,
+        input[type="password"]:focus {
+            border-color: var(--accent);
+        }
+
+        button {
+            width: 100%;
+            margin-top: 1.5rem;
+            padding: 0.75rem;
+            background: var(--accent);
+            border: none;
+            border-radius: 0.5rem;
+            color: #fff;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: opacity 0.15s;
+        }
+
+        button:hover { opacity: 0.88; }
+    </style>
+</head>
+<body>
+<div class="card">
+    <div class="logo"><span>conche</span>.com.br</div>
+    <p class="subtitle">Acesso privado</p>
+
+    {% if error %}
+    <div class="error">{{ error }}</div>
+    {% endif %}
+
+    <form method="post">
+        <input type="hidden" name="next" value="{{ next }}">
+        <div class="field">
+            <label for="username">Usuário</label>
+            <input type="text" id="username" name="username"
+                   autofocus autocomplete="username" spellcheck="false">
+        </div>
+        <div class="field">
+            <label for="password">Senha</label>
+            <input type="password" id="password" name="password"
+                   autocomplete="current-password">
+        </div>
+        <button type="submit">Entrar →</button>
+    </form>
+</div>
+</body>
+</html>

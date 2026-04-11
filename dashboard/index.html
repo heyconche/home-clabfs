@@ -34,6 +34,8 @@
             align-items: center;
             justify-content: space-between;
             margin-bottom: 3rem;
+            gap: 1rem;
+            flex-wrap: wrap;
         }
 
         header h1 {
@@ -44,6 +46,12 @@
 
         header h1 span { color: var(--accent); }
 
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+
         #uptime {
             font-size: 0.8rem;
             color: var(--muted);
@@ -52,6 +60,18 @@
             padding: 0.3rem 0.75rem;
             border-radius: 9999px;
         }
+
+        .btn-logout {
+            font-size: 0.75rem;
+            color: var(--muted);
+            background: var(--surface);
+            border: 1px solid var(--border);
+            padding: 0.3rem 0.75rem;
+            border-radius: 9999px;
+            text-decoration: none;
+            transition: border-color 0.15s, color 0.15s;
+        }
+        .btn-logout:hover { border-color: var(--red); color: var(--red); }
 
         section { margin-bottom: 2.5rem; }
 
@@ -164,7 +184,10 @@
 
 <header>
     <h1><span>conche</span>.com.br</h1>
-    <span id="uptime">⬆ carregando…</span>
+    <div class="header-right">
+        <span id="uptime">⬆ carregando…</span>
+        <a class="btn-logout" href="/logout">sair</a>
+    </div>
 </header>
 
 <section>

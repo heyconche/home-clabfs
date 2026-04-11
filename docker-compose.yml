@@ -1,5 +1,13 @@
 services:
 
+  # ── Auth (SSO leve — forward_auth do Caddy) ────────────────────────────────
+  auth:
+    build: ./auth
+    container_name: auth
+    restart: unless-stopped
+    env_file: .env
+    networks: [clabfs]
+
   # ── InfraDash (custo multi-cloud) ──────────────────────────────────────────
   infradash:
     build: ./infradash

@@ -4,5 +4,9 @@
   "address": "",
   "log": "stdout",
   "database": "/database/filebrowser.db",
-  "root": "/srv"
+  "root": "/srv",
+  "auth": {
+    "method": "proxy",
+    "header": "X-Auth-User"
+  }
 }
