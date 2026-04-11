@@ -69,4 +69,11 @@ def get_costs():
         except Exception:
             continue
 
-    raise ConnectionError(f'MagaluCloud API inacessível. Último status: {last_status}. A API pública pode estar em desenvolvimento.')
+    return {
+        'total':          None,
+        'currency':       'BRL',
+        'services':       [],
+        'note':           f'Último HTTP status: {last_status}',
+        'setup_required': True,
+        'setup_msg':      'MagaluCloud Billing API ainda não disponível publicamente. Aguardando liberação oficial.',
+    }

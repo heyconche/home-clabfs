@@ -27,6 +27,7 @@ def get_costs():
         creds_path,
         scopes=['https://www.googleapis.com/auth/cloud-platform'],
     )
+    bq_location = os.getenv('GCP_BIGQUERY_LOCATION', 'southamerica-east1')
     client = bigquery.Client(credentials=creds, project=project_id)
 
     start = datetime.now().strftime('%Y-%m-01')
@@ -42,7 +43,8 @@ def get_costs():
         LIMIT 10
     """
 
-    rows     = list(client.query(query).result())
+    job_config = bigquery.QueryJobConfig()
+    rows     = list(client.query(query, job_config=job_config, location=bq_location).result())
     services = [{'name': r['service'], 'cost': float(r['total'])} for r in rows]
     total    = sum(s['cost'] for s in services)
 
