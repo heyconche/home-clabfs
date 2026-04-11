@@ -1,5 +1,5 @@
 # InfraDash (custo multi-cloud)
-dash.conche.com.br {
+cloud.conche.com.br {
     reverse_proxy infradash:5000
 }
 
