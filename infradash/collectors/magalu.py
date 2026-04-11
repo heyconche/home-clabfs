@@ -1,59 +1,51 @@
 import os, requests
 
-MGC_API = 'https://api.magalu.cloud/v1'
+MGC_API = 'https://api.magalu.cloud'
 
 
 def _headers():
-    key_id     = os.environ['MAGALU_API_KEY_ID']
-    key_secret = os.environ['MAGALU_API_KEY_SECRET']
     return {
-        'X-API-KEY': os.environ['MAGALU_API_KEY'],
-        'X-Tenant-ID': key_id,
-        'Authorization': f'Bearer {key_secret}',
+        'X-API-Key': os.environ['MAGALU_API_KEY'],
         'Content-Type': 'application/json',
     }
+
+
+def _try_get(path):
+    r = requests.get(f'{MGC_API}{path}', headers=_headers(), timeout=10)
+    return r
 
 
 def get_costs():
     if not os.environ.get('MAGALU_API_KEY'):
         raise ValueError('MAGALU_API_KEY not configured')
 
-    h = _headers()
+    # Try known MagaluCloud API paths
+    paths_to_try = [
+        '/compute/v1/instances',
+        '/v1/compute/instances',
+        '/v0/vms',
+    ]
 
-    # Try billing endpoint
-    try:
-        r = requests.get(f'{MGC_API}/billing/v1/costs', headers=h, timeout=10)
-        if r.ok:
-            data = r.json()
-            services = [
-                {'name': s.get('name', 'Unknown'), 'cost': float(s.get('cost', 0))}
-                for s in data.get('services', [])
-                if float(s.get('cost', 0)) > 0
-            ]
-            return {
-                'total':    round(sum(s['cost'] for s in services), 4),
-                'currency': 'BRL',
-                'services': services,
-            }
-    except Exception:
-        pass
+    for path in paths_to_try:
+        try:
+            r = _try_get(path)
+            if r.ok:
+                data = r.json()
+                instances = data if isinstance(data, list) else data.get('results', data.get('instances', []))
+                running   = sum(1 for i in instances if str(i.get('status', '')).lower() in ('running', 'active', 'started'))
+                return {
+                    'total':          None,
+                    'currency':       'BRL',
+                    'services':       [],
+                    'note':           f'{running} VM(s) ativa(s) · {len(instances)} total',
+                    'setup_required': True,
+                    'setup_msg':      'API MagaluCloud conectada. Billing API em desenvolvimento.',
+                }
+            elif r.status_code == 401:
+                raise ConnectionError(f'Credenciais inválidas (401): {r.text[:200]}')
+        except ConnectionError:
+            raise
+        except Exception:
+            continue
 
-    # Fallback: list running VMs to confirm connectivity
-    try:
-        r = requests.get(f'{MGC_API}/compute/v1/instances', headers=h, timeout=10)
-        if r.ok:
-            instances = r.json().get('results', r.json() if isinstance(r.json(), list) else [])
-            running   = sum(1 for i in instances if str(i.get('status', '')).lower() in ('running', 'active'))
-            return {
-                'total':          None,
-                'currency':       'BRL',
-                'services':       [],
-                'note':           f'{running} VM(s) ativa(s) · {len(instances)} total',
-                'setup_required': True,
-                'setup_msg':      'API conectada. Endpoint de billing em desenvolvimento para MagaluCloud.',
-            }
-    except Exception:
-        pass
-
-    # Could not connect
-    raise ConnectionError('Não foi possível conectar à API da MagaluCloud. Verifique as credenciais.')
+    raise ConnectionError('Não foi possível conectar à API da MagaluCloud. Endpoint não encontrado.')

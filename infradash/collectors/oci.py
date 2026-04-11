@@ -14,9 +14,11 @@ def get_costs():
 
     client = oci.usage_api.UsageapiClient(config)
 
-    now   = datetime.now(timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0)
-    start = datetime(now.year, now.month, 1, tzinfo=timezone.utc)
-    end   = now if now > start else datetime(now.year, now.month, 2, tzinfo=timezone.utc)
+    now   = datetime.now(timezone.utc)
+    start = datetime(now.year, now.month, 1, 0, 0, 0, 0, tzinfo=timezone.utc)
+    end   = datetime(now.year, now.month, now.day, 0, 0, 0, 0, tzinfo=timezone.utc)
+    if end <= start:
+        end = datetime(now.year, now.month, 2, 0, 0, 0, 0, tzinfo=timezone.utc)
 
     details = oci.usage_api.models.RequestSummarizedUsagesDetails(
         tenant_id=config['tenancy'],
