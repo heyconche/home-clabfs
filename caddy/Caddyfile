@@ -52,7 +52,7 @@ soul.conche.com.br {
 # ── Immich ─────────────────────────────────────────────────────────────────────
 # /api/* passa direto — o app mobile usa Bearer token próprio do Immich
 fotos.conche.com.br {
-    @needsAuth not path /api/*
+    @needsAuth not path /api/* /socket.io/*
     forward_auth @needsAuth auth:5001 {
         uri /verify
     }
