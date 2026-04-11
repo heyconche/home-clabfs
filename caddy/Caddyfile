@@ -50,8 +50,10 @@ soul.conche.com.br {
 }
 
 # ── Immich ─────────────────────────────────────────────────────────────────────
+# /api/* passa direto — o app mobile usa Bearer token próprio do Immich
 fotos.conche.com.br {
-    forward_auth auth:5001 {
+    @needsAuth not path /api/*
+    forward_auth @needsAuth auth:5001 {
         uri /verify
     }
     reverse_proxy immich-server:2283
