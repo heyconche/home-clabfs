@@ -1,11 +1,15 @@
 import os, requests
 
-MGC_API = 'https://api.magalu.cloud'
+MGC_API = 'https://api.magalu.cloud/v1'
 
 
 def _headers():
+    key_id     = os.environ['MAGALU_API_KEY_ID']
+    key_secret = os.environ['MAGALU_API_KEY_SECRET']
     return {
         'X-API-KEY': os.environ['MAGALU_API_KEY'],
+        'X-Tenant-ID': key_id,
+        'Authorization': f'Bearer {key_secret}',
         'Content-Type': 'application/json',
     }
 
