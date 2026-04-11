@@ -1,13 +1,6 @@
-# Snippet reutilizável — forward_auth para todos os sites protegidos
-(protected) {
-    forward_auth auth:5001 {
-        uri /verify
-    }
-}
-
 # ── Dashboard principal ────────────────────────────────────────────────────────
 conche.com.br {
-    # Rotas públicas do auth (sem proteção)
+    # Login e logout são públicos — sem forward_auth
     handle /login* {
         reverse_proxy auth:5001
     }
@@ -15,25 +8,26 @@ conche.com.br {
         reverse_proxy auth:5001
     }
 
-    # Stats do Glances (protegido, com strip de prefixo)
-    handle /stats/* {
-        route {
-            import protected
-            uri strip_prefix /stats
-            reverse_proxy glances:61208
-        }
+    # Tudo exceto /login* e /logout* é protegido
+    @needsAuth not path /login* /logout*
+    forward_auth @needsAuth auth:5001 {
+        uri /verify
     }
 
-    # Dashboard (protegido)
+    handle /stats/* {
+        uri strip_prefix /stats
+        reverse_proxy glances:61208
+    }
     handle {
-        import protected
         reverse_proxy dashboard:80
     }
 }
 
 # ── Filebrowser ────────────────────────────────────────────────────────────────
 nfs.conche.com.br {
-    import protected
+    forward_auth auth:5001 {
+        uri /verify
+    }
     reverse_proxy filebrowser:80 {
         header_up X-Auth-User "admin"
     }
@@ -41,24 +35,32 @@ nfs.conche.com.br {
 
 # ── Vaultwarden ────────────────────────────────────────────────────────────────
 cofre.conche.com.br {
-    import protected
+    forward_auth auth:5001 {
+        uri /verify
+    }
     reverse_proxy vaultwarden:80
 }
 
 # ── Ghost ──────────────────────────────────────────────────────────────────────
 soul.conche.com.br {
-    import protected
+    forward_auth auth:5001 {
+        uri /verify
+    }
     reverse_proxy ghost:2368
 }
 
 # ── Immich ─────────────────────────────────────────────────────────────────────
 fotos.conche.com.br {
-    import protected
+    forward_auth auth:5001 {
+        uri /verify
+    }
     reverse_proxy immich-server:2283
 }
 
 # ── InfraDash ──────────────────────────────────────────────────────────────────
 cloud.conche.com.br {
-    import protected
+    forward_auth auth:5001 {
+        uri /verify
+    }
     reverse_proxy infradash:5000
 }
