@@ -1,7 +1,14 @@
 {
   "permissions": {
     "allow": [
-      "WebFetch(domain:raw.githubusercontent.com)"
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "WebFetch(domain:docs.magalu.cloud)",
+      "Bash(curl -s https://raw.githubusercontent.com/MagaluCloud/magalu/main/README.md)",
+      "Bash(curl -s https://raw.githubusercontent.com/MagaluCloud/magalu/main/mgc/sdk/openapi/README.md)",
+      "Bash(curl -s https://raw.githubusercontent.com/MagaluCloud/magalu/main/mgc/sdk/openapi/specs/add_all_specs.sh)",
+      "Bash(curl -s https://virtual-machine.jaxyendy.com/openapi.json)",
+      "Bash(python3 -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\(''''Servers:'''', d.get\\(''''servers'''',[]\\)\\); print\\(''''Security:'''', d.get\\(''''securitySchemes'''', d.get\\(''''components'''',{}\\).get\\(''''securitySchemes'''',{}\\)\\)\\)\")",
+      "Bash(curl -s https://api.github.com/repos/MagaluCloud/magalu/git/trees/main?recursive=1)"
     ]
   }
 }
