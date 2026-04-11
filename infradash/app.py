@@ -4,7 +4,6 @@ from dotenv import load_dotenv
 from collectors import aws as aws_col
 from collectors import gcp as gcp_col
 from collectors import oci as oci_col
-from collectors import magalu as magalu_col
 
 load_dotenv()
 
@@ -47,7 +46,6 @@ def costs():
         'aws':    cached('aws',    CLOUD_TTL, aws_col.get_costs),
         'gcp':    cached('gcp',    CLOUD_TTL, gcp_col.get_costs),
         'oci':    cached('oci',    CLOUD_TTL, oci_col.get_costs),
-        'magalu': cached('magalu', CLOUD_TTL, magalu_col.get_costs),
         'cached_at': time.time(),
     })
 

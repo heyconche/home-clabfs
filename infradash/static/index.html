@@ -20,7 +20,6 @@
             --aws:     #FF9900;
             --gcp:     #4285F4;
             --oci:     #C74634;
-            --magalu:  #007BFF;
         }
 
         body {
@@ -98,7 +97,6 @@
         .cloud-card.aws    { border-top-color: var(--aws); }
         .cloud-card.gcp    { border-top-color: var(--gcp); }
         .cloud-card.oci    { border-top-color: var(--oci); }
-        .cloud-card.magalu { border-top-color: var(--magalu); }
 
         .cloud-header {
             display: flex;
@@ -222,17 +220,6 @@
             <div id="oci-msg"></div>
         </div>
 
-        <div class="cloud-card magalu">
-            <div class="cloud-header">
-                <span class="cloud-name">☁ MagaluCloud</span>
-                <span class="cloud-badge" id="magalu-badge">BRL</span>
-            </div>
-            <div class="cloud-total" id="magalu-total">—</div>
-            <div class="cloud-period" id="magalu-period">aguardando…</div>
-            <div id="magalu-services" class="services"></div>
-            <div id="magalu-msg"></div>
-        </div>
-
     </div>
 </section>
 
@@ -243,10 +230,6 @@
             <div class="total-label">Gasto total este mês (USD)</div>
             <div class="total-value" id="grand-total">—</div>
             <div class="total-sub" id="grand-sub">AWS + GCP + OCI</div>
-        </div>
-        <div style="text-align:right">
-            <div class="total-label">MagaluCloud (BRL)</div>
-            <div class="total-value" id="magalu-grand">—</div>
         </div>
     </div>
 </section>
@@ -309,20 +292,17 @@
             const r = await fetch('/api/costs');
             const d = await r.json();
 
-            renderCloud('aws',    d.aws);
-            renderCloud('gcp',    d.gcp);
-            renderCloud('oci',    d.oci);
-            renderCloud('magalu', d.magalu);
+            renderCloud('aws', d.aws);
+            renderCloud('gcp', d.gcp);
+            renderCloud('oci', d.oci);
 
             // Grand total USD
-            const usdClouds = ['aws', 'gcp', 'oci'];
-            const usdTotal  = usdClouds.reduce((acc, k) => {
+            const usdTotal = ['aws', 'gcp', 'oci'].reduce((acc, k) => {
                 const v = d[k]?.total;
                 return acc + (typeof v === 'number' ? v : 0);
             }, 0);
 
             document.getElementById('grand-total').textContent = fmt(usdTotal, 'USD');
-            document.getElementById('magalu-grand').textContent = fmt(d.magalu?.total, 'BRL');
             document.getElementById('last-update').textContent =
                 'atualizado às ' + new Date().toLocaleTimeString('pt-BR');
 
