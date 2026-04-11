@@ -1,3 +1,8 @@
+# InfraDash (custo multi-cloud)
+dash.conche.com.br {
+    reverse_proxy infradash:5000
+}
+
 # Dashboard principal
 conche.com.br {
     # Proxy da API de stats (Glances) — acessível só internamente via este path

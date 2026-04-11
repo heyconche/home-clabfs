@@ -1,5 +1,16 @@
 services:
 
+  # ── InfraDash (custo multi-cloud) ──────────────────────────────────────────
+  infradash:
+    build: ./infradash
+    container_name: infradash
+    restart: unless-stopped
+    env_file: .env
+    volumes:
+      - ./infradash/credentials/gcp.json:/app/credentials/gcp.json:ro
+      - ./infradash/credentials/oci.pem:/app/credentials/oci.pem:ro
+    networks: [clabfs]
+
   # ── Dashboard (página inicial com stats) ───────────────────────────────────
   dashboard:
     image: nginx:alpine

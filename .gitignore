@@ -7,6 +7,9 @@ filebrowser/filebrowser.db
 # Logs
 *.log
 
+# InfraDash credentials (NEVER commit these)
+infradash/credentials/
+
 # OS
 .DS_Store
 Thumbs.db
