@@ -8,6 +8,9 @@ jobs:
   deploy:
     runs-on: self-hosted
     steps:
+      - name: Fix permissions
+        run: sudo chown -R $USER:$USER /opt/home-clabfs
+
       - name: Pull latest changes
         run: |
           cd /opt/home-clabfs
