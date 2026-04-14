@@ -234,6 +234,22 @@
         .check-btn.done { background: rgba(34,197,94,0.15); border-color: var(--green); color: var(--green); }
         .check-btn:hover:not(.done) { border-color: var(--muted); }
 
+        .del-btn {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            border: 1px solid transparent;
+            background: none;
+            cursor: pointer;
+            color: var(--border);
+            font-size: 0.9rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: color 0.15s, border-color 0.15s;
+        }
+        .del-btn:hover { color: var(--red); border-color: var(--red); }
+
         .restante.ok { color: var(--green); }
         .restante.warn { color: var(--yellow); }
 
@@ -503,14 +519,30 @@ function renderMarket() {
         const bought = !!it.comprado;
         return `<tr class="${bought ? 'bought' : ''}" id="mrow-${i}">
             <td class="ing-name">${it.ing}</td>
-            <td style="color:var(--muted)">${it.semana}</td>
+            <td><input class="qty-input" value="${it.semana}"
+                oninput="updateSemana(${i}, this.value)"/></td>
             <td><input class="qty-input" value="${it.comprado}" placeholder="—"
                 oninput="updateBought(${i}, this.value)"/></td>
             <td class="restante ${restanteClass(it)}">${calcRestante(it)}</td>
             <td><button class="check-btn ${bought ? 'done' : ''}"
                 onclick="toggleBought(${i})">${bought ? '✓' : '○'}</button></td>
+            <td><button class="del-btn" onclick="removeItem(${i})">×</button></td>
         </tr>`;
     }).join('');
+}
+
+function updateSemana(i, val) {
+    market[i].semana = val;
+    saveMarket();
+    const row = document.getElementById('mrow-' + i);
+    row.querySelector('.restante').textContent = calcRestante(market[i]);
+    row.querySelector('.restante').className = 'restante ' + restanteClass(market[i]);
+}
+
+function removeItem(i) {
+    market.splice(i, 1);
+    saveMarket();
+    renderMarket();
 }
 
 function updateBought(i, val) {
