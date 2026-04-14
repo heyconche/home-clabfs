@@ -59,6 +59,14 @@ fotos.conche.com.br {
     reverse_proxy immich-server:2283
 }
 
+# ── Food (dieta e mercado) ────────────────────────────────────────────────────
+food.conche.com.br {
+    forward_auth auth:5001 {
+        uri /verify
+    }
+    reverse_proxy food:80
+}
+
 # ── InfraDash ──────────────────────────────────────────────────────────────────
 cloud.conche.com.br {
     forward_auth auth:5001 {
