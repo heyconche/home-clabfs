@@ -1,9 +1,10 @@
 import os
+import json
 import time
 import urllib.parse
 import jwt
 import bcrypt
-from flask import Flask, request, redirect, render_template, make_response
+from flask import Flask, request, redirect, render_template, make_response, jsonify
 
 app = Flask(__name__)
 
@@ -108,6 +109,36 @@ def logout():
     resp = make_response(redirect(LOGIN_URL))
     resp.delete_cookie(COOKIE, domain=DOMAIN, path='/')
     return resp
+
+
+FOOD_MARKET_FILE = '/data/food-market.json'
+
+
+def _auth_ok() -> bool:
+    token = request.cookies.get(COOKIE)
+    return bool(token and valid_token(token))
+
+
+@app.route('/food/market', methods=['GET'])
+def food_market_get():
+    if not _auth_ok():
+        return '', 401
+    try:
+        with open(FOOD_MARKET_FILE) as f:
+            return jsonify(json.load(f))
+    except FileNotFoundError:
+        return jsonify([])
+
+
+@app.route('/food/market', methods=['POST'])
+def food_market_post():
+    if not _auth_ok():
+        return '', 401
+    data = request.get_json(force=True)
+    os.makedirs(os.path.dirname(FOOD_MARKET_FILE), exist_ok=True)
+    with open(FOOD_MARKET_FILE, 'w') as f:
+        json.dump(data, f)
+    return '', 204
 
 
 if __name__ == '__main__':

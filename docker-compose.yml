@@ -6,6 +6,8 @@ services:
     container_name: auth
     restart: unless-stopped
     env_file: .env
+    volumes:
+      - auth_data:/data
     networks: [clabfs]
 
   # ── InfraDash (custo multi-cloud) ──────────────────────────────────────────
@@ -148,6 +150,7 @@ volumes:
   caddy_config:
   immich_model_cache:
   filebrowser_db:
+  auth_data:
 
 networks:
   clabfs:

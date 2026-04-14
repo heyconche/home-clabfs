@@ -448,15 +448,24 @@ const defaultMarket = [
 let market = [];
 let openMeals = {};
 
-function loadMarket() {
+async function loadMarket() {
     try {
-        const saved = localStorage.getItem('food-market');
-        market = saved ? JSON.parse(saved) : JSON.parse(JSON.stringify(defaultMarket));
+        const res = await fetch('/api/food/market');
+        if (res.ok) {
+            const data = await res.json();
+            market = data.length ? data : JSON.parse(JSON.stringify(defaultMarket));
+        } else {
+            market = JSON.parse(JSON.stringify(defaultMarket));
+        }
     } catch { market = JSON.parse(JSON.stringify(defaultMarket)); }
 }
 
-function saveMarket() {
-    localStorage.setItem('food-market', JSON.stringify(market));
+async function saveMarket() {
+    fetch('/api/food/market', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(market)
+    });
     document.getElementById('last-saved').textContent =
         'salvo às ' + new Date().toLocaleTimeString('pt-BR');
 }
@@ -617,10 +626,13 @@ function switchTab(tab, btn) {
     btn.classList.add('active');
 }
 
-loadMarket();
-renderMacros();
-renderMeals();
-renderMarket();
+async function init() {
+    await loadMarket();
+    renderMacros();
+    renderMeals();
+    renderMarket();
+}
+init();
 </script>
 </body>
 </html>

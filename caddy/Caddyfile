@@ -64,7 +64,13 @@ food.conche.com.br {
     forward_auth auth:5001 {
         uri /verify
     }
-    reverse_proxy food:80
+    handle /api/* {
+        uri strip_prefix /api
+        reverse_proxy auth:5001
+    }
+    handle {
+        reverse_proxy food:80
+    }
 }
 
 # ── InfraDash ──────────────────────────────────────────────────────────────────
