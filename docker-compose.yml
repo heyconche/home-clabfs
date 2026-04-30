@@ -105,7 +105,7 @@ services:
 
   # ── Immich (fotos) ──────────────────────────────────────────────────────────
   immich-server:
-    image: ghcr.io/immich-app/immich-server:release
+    image: ghcr.io/immich-app/immich-server:v2.7.5
     container_name: immich-server
     restart: unless-stopped
     environment:
@@ -120,7 +120,7 @@ services:
     networks: [clabfs]
 
   immich-machine-learning:
-    image: ghcr.io/immich-app/immich-machine-learning:release
+    image: ghcr.io/immich-app/immich-machine-learning:v2.7.5
     container_name: immich-ml
     restart: unless-stopped
     volumes:
