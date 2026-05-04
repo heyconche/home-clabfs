@@ -35,9 +35,6 @@ nfs.conche.com.br {
 
 # ── Vaultwarden ────────────────────────────────────────────────────────────────
 cofre.conche.com.br {
-    forward_auth auth:5001 {
-        uri /verify
-    }
     reverse_proxy vaultwarden:80
 }
 

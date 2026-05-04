@@ -14,7 +14,9 @@ jobs:
       - name: Pull latest changes
         run: |
           cd /opt/home-clabfs
-          git pull origin main
+          git fetch origin main
+          git reset --hard origin/main
+          git clean -fd
 
       - name: Apply Docker services
         run: |
