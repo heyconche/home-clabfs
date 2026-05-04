@@ -3,11 +3,11 @@ const summaryGrid = document.getElementById('summary-grid');
 const mealStack = document.getElementById('meal-stack');
 const foodList = document.getElementById('food-list');
 const historyList = document.getElementById('history-list');
-const todayStatus = document.getElementById('today-status');
-const syncStatus = document.getElementById('sync-status');
 const lastSaved = document.getElementById('last-saved');
 const currentDateInput = document.getElementById('current-date');
 const foodEditorTitle = document.getElementById('food-editor-title');
+const marketList = document.getElementById('market-list');
+const shoppingList = document.getElementById('shopping-list');
 
 const mealOrder = ['Cafe da manha', 'Almoco', 'Lanche', 'Jantar', 'Ceia'];
 
@@ -26,11 +26,13 @@ const defaultState = {
         makeFood('Leite integral', 200, 'ml', 6.2, 9.6, 6),
     ],
     days: {},
+    market: [],
 };
 
 let state = structuredClone(defaultState);
 let activeTab = 'today';
 let foodFormState = { id: null };
+let marketFormState = { id: null };
 
 bootstrap();
 
@@ -67,6 +69,13 @@ function bindEvents() {
     document.getElementById('save-goals-btn').addEventListener('click', saveGoals);
     document.getElementById('save-food-btn').addEventListener('click', saveFoodFromForm);
     document.getElementById('clear-food-form-btn').addEventListener('click', resetFoodForm);
+    document.getElementById('save-market-btn').addEventListener('click', saveMarketItem);
+    document.getElementById('clear-market-form-btn').addEventListener('click', resetMarketForm);
+    document.getElementById('market-food-search').addEventListener('input', updateMarketSuggestions);
+    document.getElementById('market-food-search').addEventListener('focus', updateMarketSuggestions);
+    document.getElementById('market-food-search').addEventListener('blur', () => {
+        setTimeout(hideMarketSuggestions, 120);
+    });
 }
 
 async function loadState() {
@@ -76,11 +85,9 @@ async function loadState() {
         if (!response.ok) throw new Error('load failed');
         const payload = await response.json();
         state = mergeState(payload);
-        syncStatus.textContent = 'sincronizado com servidor';
         lastSaved.textContent = `ultima sincronizacao ${timeLabel(new Date())}`;
     } catch (error) {
         state = mergeState(defaultState);
-        syncStatus.textContent = 'erro ao carregar do servidor';
         lastSaved.textContent = 'sem dados do servidor';
         window.alert('Nao foi possivel carregar seus dados do servidor. Recarregue a pagina depois de conferir a sessao.');
     }
@@ -91,6 +98,7 @@ function mergeState(payload) {
         goals: payload?.goals || structuredClone(defaultState.goals),
         foods: Array.isArray(payload?.foods) && payload.foods.length ? payload.foods : structuredClone(defaultState.foods),
         days: payload?.days && typeof payload.days === 'object' ? payload.days : {},
+        market: Array.isArray(payload?.market) ? payload.market : [],
     };
 }
 
@@ -109,6 +117,7 @@ function render() {
     renderSummary();
     renderToday();
     renderFoods();
+    renderMarket();
     renderHistory();
 }
 
@@ -131,7 +140,6 @@ function renderSummary() {
         metricCard('Gordura', `${totals.fat.toFixed(1)} g`, goals.fat, totals.fat, '#eab308'),
     ];
     summaryGrid.innerHTML = cards.join('');
-    todayStatus.textContent = `${formatDate(currentDateInput.value)} · ${countEntries(getCurrentDay())} itens`;
 }
 
 function metricCard(label, valueLabel, goal, current, color) {
@@ -299,6 +307,64 @@ function renderHistory() {
     }).join('') || '<div class="empty">Conforme voce registrar refeicoes, os dias anteriores vao aparecer aqui.</div>';
 }
 
+function renderMarket() {
+    const items = [...state.market].sort((a, b) => a.name.localeCompare(b.name, 'pt-BR'));
+    marketList.innerHTML = items.map((item) => {
+        const buy = Math.max(0, Number(item.needed || 0) - Number(item.have || 0));
+        return `
+            <div class="market-card">
+                <div class="market-top">
+                    <div>
+                        <div class="market-name">${escapeHtml(item.name)}</div>
+                        <div class="market-sub">${item.linkedFoodId ? 'vinculado a alimento da base' : 'item manual'} · unidade ${escapeHtml(item.unit)}</div>
+                    </div>
+                    <div class="inline-actions">
+                        <button class="mini-btn" type="button" data-edit-market="${item.id}">editar</button>
+                        <button class="danger-btn" type="button" data-delete-market="${item.id}">apagar</button>
+                    </div>
+                </div>
+                <div class="market-stats">
+                    <div class="market-stat">
+                        <div class="label">Preciso</div>
+                        <strong>${formatQty(item.needed)} ${escapeHtml(item.unit)}</strong>
+                    </div>
+                    <div class="market-stat">
+                        <div class="label">Tenho</div>
+                        <strong>${formatQty(item.have)} ${escapeHtml(item.unit)}</strong>
+                    </div>
+                    <div class="market-stat">
+                        <div class="label">Comprar</div>
+                        <strong>${formatQty(buy)} ${escapeHtml(item.unit)}</strong>
+                    </div>
+                </div>
+            </div>
+        `;
+    }).join('') || '<div class="empty">Adicione os itens da proxima semana para montar sua lista de compras.</div>';
+
+    const shopping = items.filter((item) => (Number(item.needed || 0) - Number(item.have || 0)) > 0);
+    shoppingList.innerHTML = shopping.map((item) => {
+        const buy = Math.max(0, Number(item.needed || 0) - Number(item.have || 0));
+        return `
+            <div class="entry-card">
+                <div class="entry-head">
+                    <div>
+                        <div class="entry-title">${escapeHtml(item.name)}</div>
+                        <div class="entry-sub">preciso ${formatQty(item.needed)} · tenho ${formatQty(item.have)}</div>
+                    </div>
+                    <span class="active-badge">${formatQty(buy)} ${escapeHtml(item.unit)}</span>
+                </div>
+            </div>
+        `;
+    }).join('') || '<div class="empty">Nada para comprar no momento.</div>';
+
+    marketList.querySelectorAll('[data-edit-market]').forEach((button) => {
+        button.addEventListener('click', () => editMarketItem(button.dataset.editMarket));
+    });
+    marketList.querySelectorAll('[data-delete-market]').forEach((button) => {
+        button.addEventListener('click', () => deleteMarketItem(button.dataset.deleteMarket));
+    });
+}
+
 function updateSuggestions(mealId) {
     const input = document.querySelector(`[data-food-search="${mealId}"]`);
     const panel = document.querySelector(`[data-suggestions="${mealId}"]`);
@@ -357,6 +423,57 @@ function hideSuggestions(mealId) {
         panel.hidden = true;
         panel.innerHTML = '';
     }
+}
+
+function updateMarketSuggestions() {
+    const input = document.getElementById('market-food-search');
+    const panel = document.getElementById('market-suggestions');
+    const query = input.value.trim().toLowerCase();
+
+    if (!query) {
+        panel.hidden = true;
+        panel.innerHTML = '';
+        return;
+    }
+
+    const matches = state.foods
+        .filter((food) => food.name.toLowerCase().includes(query))
+        .sort((a, b) => a.name.localeCompare(b.name, 'pt-BR'))
+        .slice(0, 6);
+
+    if (!matches.length) {
+        panel.hidden = true;
+        panel.innerHTML = '';
+        return;
+    }
+
+    panel.innerHTML = matches.map((food) => `
+        <div class="suggestion" data-market-food="${food.id}">
+            <strong>${escapeHtml(food.name)}</strong>
+            <span>${food.servingAmount} ${escapeHtml(food.servingUnit)} · ${foodCalories(food).toFixed(0)} kcal</span>
+        </div>
+    `).join('');
+    panel.hidden = false;
+
+    panel.querySelectorAll('[data-market-food]').forEach((item) => {
+        item.addEventListener('click', () => selectMarketFood(item.dataset.marketFood));
+    });
+}
+
+function selectMarketFood(foodId) {
+    const food = state.foods.find((item) => item.id === foodId);
+    if (!food) return;
+    marketFormState.linkedFoodId = food.id;
+    document.getElementById('market-food-search').value = food.name;
+    document.getElementById('market-manual-name').value = '';
+    document.getElementById('market-unit').value = food.servingUnit;
+    hideMarketSuggestions();
+}
+
+function hideMarketSuggestions() {
+    const panel = document.getElementById('market-suggestions');
+    panel.hidden = true;
+    panel.innerHTML = '';
 }
 
 async function addMealEntry(mealId) {
@@ -472,6 +589,61 @@ async function saveFoodFromForm() {
     render();
 }
 
+async function saveMarketItem() {
+    const linkedFoodId = marketFormState.linkedFoodId || null;
+    const linkedFood = linkedFoodId ? state.foods.find((item) => item.id === linkedFoodId) : null;
+    const manualName = document.getElementById('market-manual-name').value.trim();
+    const item = {
+        id: marketFormState.id || uid(),
+        linkedFoodId,
+        name: linkedFood ? linkedFood.name : manualName,
+        needed: Number(document.getElementById('market-needed').value) || 0,
+        have: Number(document.getElementById('market-have').value) || 0,
+        unit: document.getElementById('market-unit').value.trim(),
+    };
+
+    if (!item.name || !item.unit || !item.needed) {
+        window.alert('Preencha nome, quantidade necessaria e unidade.');
+        return;
+    }
+
+    const index = state.market.findIndex((entry) => entry.id === item.id);
+    if (index >= 0) {
+        state.market.splice(index, 1, item);
+    } else {
+        state.market.unshift(item);
+    }
+    resetMarketForm();
+    await saveState();
+    render();
+}
+
+function editMarketItem(itemId) {
+    const item = state.market.find((entry) => entry.id === itemId);
+    if (!item) return;
+    marketFormState = { id: item.id, linkedFoodId: item.linkedFoodId || null };
+    document.getElementById('market-food-search').value = item.linkedFoodId ? item.name : '';
+    document.getElementById('market-manual-name').value = item.linkedFoodId ? '' : item.name;
+    document.getElementById('market-needed').value = item.needed;
+    document.getElementById('market-have').value = item.have;
+    document.getElementById('market-unit').value = item.unit;
+    switchTab('market');
+}
+
+async function deleteMarketItem(itemId) {
+    if (!window.confirm('Apagar este item da lista de mercado?')) return;
+    state.market = state.market.filter((entry) => entry.id !== itemId);
+    await saveState();
+    render();
+}
+
+function resetMarketForm() {
+    marketFormState = { id: null, linkedFoodId: null };
+    ['market-food-search', 'market-manual-name', 'market-needed', 'market-have', 'market-unit']
+        .forEach((id) => { document.getElementById(id).value = ''; });
+    hideMarketSuggestions();
+}
+
 function editFood(foodId) {
     const food = state.foods.find((item) => item.id === foodId);
     if (!food) return;
@@ -514,10 +686,8 @@ async function saveState() {
             body: JSON.stringify(state),
         });
         if (!response.ok) throw new Error('save failed');
-        syncStatus.textContent = 'sincronizado com servidor';
         lastSaved.textContent = `ultima sincronizacao ${timeLabel(new Date())}`;
     } catch (error) {
-        syncStatus.textContent = 'erro ao salvar no servidor';
         lastSaved.textContent = 'alteracoes nao sincronizadas';
         window.alert('Nao foi possivel salvar no servidor.');
     }
@@ -579,6 +749,10 @@ function formatDate(value) {
 
 function timeLabel(date) {
     return date.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+}
+
+function formatQty(value) {
+    return Number(value || 0).toLocaleString('pt-BR', { maximumFractionDigits: 1 });
 }
 
 function uid() {
