@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180">
+  <rect width="180" height="180" rx="42" fill="#7E17B6"/>
+  <text
+    x="90"
+    y="96"
+    text-anchor="middle"
+    dominant-baseline="central"
+    font-family="Avenir Next, SF Pro Display, Inter, Segoe UI, Arial, sans-serif"
+    font-size="92"
+    font-weight="800"
+    fill="#FFFFFF">L</text>
+</svg>
