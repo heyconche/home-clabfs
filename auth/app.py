@@ -24,6 +24,8 @@ SAFE_HOSTS = {
     'soul.conche.com.br',
     'fotos.conche.com.br',
     'cloud.conche.com.br',
+    'food.conche.com.br',
+    'lift.conche.com.br',
 }
 
 
@@ -112,6 +114,7 @@ def logout():
 
 
 FOOD_MARKET_FILE = '/data/food-market.json'
+LIFT_STATE_FILE = '/data/lift-state.json'
 
 
 def _auth_ok() -> bool:
@@ -137,6 +140,28 @@ def food_market_post():
     data = request.get_json(force=True)
     os.makedirs(os.path.dirname(FOOD_MARKET_FILE), exist_ok=True)
     with open(FOOD_MARKET_FILE, 'w') as f:
+        json.dump(data, f)
+    return '', 204
+
+
+@app.route('/lift/state', methods=['GET'])
+def lift_state_get():
+    if not _auth_ok():
+        return '', 401
+    try:
+        with open(LIFT_STATE_FILE) as f:
+            return jsonify(json.load(f))
+    except FileNotFoundError:
+        return jsonify({})
+
+
+@app.route('/lift/state', methods=['POST'])
+def lift_state_post():
+    if not _auth_ok():
+        return '', 401
+    data = request.get_json(force=True)
+    os.makedirs(os.path.dirname(LIFT_STATE_FILE), exist_ok=True)
+    with open(LIFT_STATE_FILE, 'w') as f:
         json.dump(data, f)
     return '', 204
 

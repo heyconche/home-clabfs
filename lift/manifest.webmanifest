@@ -1,0 +1,17 @@
+{
+  "name": "Lift Conche",
+  "short_name": "Lift",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f6f0e8",
+  "theme_color": "#d46a2d",
+  "description": "Controle simples de treinos no seu homelab.",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

@@ -69,6 +69,20 @@ food.conche.com.br {
     }
 }
 
+# ── Lift (treinos de academia) ────────────────────────────────────────────────
+lift.conche.com.br {
+    forward_auth auth:5001 {
+        uri /verify
+    }
+    handle /api/* {
+        uri strip_prefix /api
+        reverse_proxy auth:5001
+    }
+    handle {
+        reverse_proxy lift:80
+    }
+}
+
 # ── InfraDash ──────────────────────────────────────────────────────────────────
 cloud.conche.com.br {
     forward_auth auth:5001 {

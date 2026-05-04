@@ -39,6 +39,15 @@ services:
       - ./food:/usr/share/nginx/html:ro
     networks: [clabfs]
 
+  # ── Lift (treinos de academia) ──────────────────────────────────────────────
+  lift:
+    image: nginx:alpine
+    container_name: lift
+    restart: unless-stopped
+    volumes:
+      - ./lift:/usr/share/nginx/html:ro
+    networks: [clabfs]
+
   # ── Glances (API de stats do servidor) ─────────────────────────────────────
   glances:
     image: nicolargo/glances:latest
