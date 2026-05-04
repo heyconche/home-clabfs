@@ -400,6 +400,12 @@
         .field-block input,
         .field-block textarea {
             background: var(--surface);
+            color: var(--text);
+        }
+
+        .field-block input::placeholder,
+        .field-block textarea::placeholder {
+            color: var(--muted);
         }
 
         input[type="date"]::-webkit-calendar-picker-indicator {
