@@ -1,5 +1,16 @@
+# ── Shared no-cache policy ─────────────────────────────────────────────────────
+(no_cache) {
+    header {
+        Cache-Control "no-store, no-cache, must-revalidate, max-age=0"
+        Pragma "no-cache"
+        Expires "0"
+    }
+}
+
 # ── Dashboard principal ────────────────────────────────────────────────────────
 conche.com.br {
+    import no_cache
+
     # Login e logout são públicos — sem forward_auth
     handle /login* {
         reverse_proxy auth:5001
@@ -25,6 +36,8 @@ conche.com.br {
 
 # ── Filebrowser ────────────────────────────────────────────────────────────────
 nfs.conche.com.br {
+    import no_cache
+
     forward_auth auth:5001 {
         uri /verify
     }
@@ -35,11 +48,14 @@ nfs.conche.com.br {
 
 # ── Vaultwarden ────────────────────────────────────────────────────────────────
 cofre.conche.com.br {
+    import no_cache
     reverse_proxy vaultwarden:80
 }
 
 # ── Ghost ──────────────────────────────────────────────────────────────────────
 soul.conche.com.br {
+    import no_cache
+
     forward_auth auth:5001 {
         uri /verify
     }
@@ -49,11 +65,14 @@ soul.conche.com.br {
 # ── Immich ─────────────────────────────────────────────────────────────────────
 # forward_auth removido — Immich tem autenticação própria (Bearer token)
 fotos.conche.com.br {
+    import no_cache
     reverse_proxy immich-server:2283
 }
 
 # ── Food (dieta e mercado) ────────────────────────────────────────────────────
 food.conche.com.br {
+    import no_cache
+
     forward_auth auth:5001 {
         uri /verify
     }
@@ -68,6 +87,8 @@ food.conche.com.br {
 
 # ── Lift (treinos de academia) ────────────────────────────────────────────────
 lift.conche.com.br {
+    import no_cache
+
     forward_auth auth:5001 {
         uri /verify
     }
@@ -82,6 +103,8 @@ lift.conche.com.br {
 
 # ── InfraDash ──────────────────────────────────────────────────────────────────
 cloud.conche.com.br {
+    import no_cache
+
     forward_auth auth:5001 {
         uri /verify
     }
