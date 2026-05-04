@@ -394,6 +394,23 @@
             background: var(--bg-strong);
             padding: 0.7rem 0.85rem;
             color: var(--text);
+            color-scheme: dark;
+        }
+
+        .field-block input,
+        .field-block textarea {
+            background: var(--surface);
+        }
+
+        input[type="date"]::-webkit-calendar-picker-indicator {
+            filter: invert(0.86) sepia(0.2) saturate(0.4) hue-rotate(185deg);
+            cursor: pointer;
+        }
+
+        input[type="number"]::-webkit-outer-spin-button,
+        input[type="number"]::-webkit-inner-spin-button {
+            opacity: 1;
+            filter: invert(0.75);
         }
 
         .set-table input {
@@ -434,6 +451,13 @@
             gap: 0.45rem;
         }
 
+        .field-block {
+            background: var(--bg-strong);
+            border: 1px solid var(--border);
+            border-radius: 0.875rem;
+            padding: 0.8rem 0.9rem;
+        }
+
         .field-label,
         .editor-label {
             font-size: 0.72rem;
@@ -457,7 +481,8 @@
         }
 
         .editor-field {
-            display: grid;
+            display: flex;
+            flex-direction: column;
             gap: 0.35rem;
         }
 
@@ -466,6 +491,7 @@
             text-transform: uppercase;
             letter-spacing: 0.12em;
             color: var(--muted);
+            display: block;
         }
 
         .editor-hint {
@@ -587,6 +613,18 @@
             .measure-form,
             .editor-row {
                 grid-template-columns: 1fr;
+            }
+            .field-block {
+                padding: 0.75rem 0.8rem;
+            }
+            .editor-card {
+                padding: 0.8rem;
+            }
+            .editor-field {
+                gap: 0.3rem;
+            }
+            .editor-row input {
+                min-height: 3rem;
             }
             .set-table thead { display: none; }
             .set-table,
