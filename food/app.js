@@ -342,14 +342,36 @@ function renderMarket() {
     }).join('') || '<div class="empty">Adicione os itens da proxima semana para montar sua lista de compras.</div>';
 
     const shopping = items.filter((item) => (Number(item.needed || 0) - Number(item.have || 0)) > 0);
-    shoppingList.innerHTML = shopping.map((item) => {
+    marketList.querySelectorAll('[data-edit-market]').forEach((button) => {
+        button.addEventListener('click', () => editMarketItem(button.dataset.editMarket));
+    });
+    marketList.querySelectorAll('[data-delete-market]').forEach((button) => {
+        button.addEventListener('click', () => deleteMarketItem(button.dataset.deleteMarket));
+    });
+
+    renderShoppingList(shopping);
+}
+
+function renderShoppingList(shoppingItems = null) {
+    const source = shoppingItems || [...state.market].filter((item) => (Number(item.needed || 0) - Number(item.have || 0)) > 0);
+    const ordered = [...source].sort((a, b) => {
+        const doneA = !!a.checked;
+        const doneB = !!b.checked;
+        if (doneA !== doneB) return doneA - doneB;
+        return a.name.localeCompare(b.name, 'pt-BR');
+    });
+
+    shoppingList.innerHTML = ordered.map((item) => {
         const buy = Math.max(0, Number(item.needed || 0) - Number(item.have || 0));
         return `
-            <div class="entry-card">
-                <div class="entry-head">
+            <div class="shopping-card ${item.checked ? 'done' : ''}">
+                <div class="shopping-row">
+                    <button class="shopping-toggle ${item.checked ? 'done' : ''}" type="button" data-toggle-shopping="${item.id}">
+                        ${item.checked ? '✓' : '○'}
+                    </button>
                     <div>
-                        <div class="entry-title">${escapeHtml(item.name)}</div>
-                        <div class="entry-sub">preciso ${formatQty(item.needed)} · tenho ${formatQty(item.have)}</div>
+                        <div class="shopping-name">${escapeHtml(item.name)}</div>
+                        <div class="market-sub">comprar ${formatQty(buy)} ${escapeHtml(item.unit)} · preciso ${formatQty(item.needed)} · tenho ${formatQty(item.have)}</div>
                     </div>
                     <span class="active-badge">${formatQty(buy)} ${escapeHtml(item.unit)}</span>
                 </div>
@@ -357,11 +379,8 @@ function renderMarket() {
         `;
     }).join('') || '<div class="empty">Nada para comprar no momento.</div>';
 
-    marketList.querySelectorAll('[data-edit-market]').forEach((button) => {
-        button.addEventListener('click', () => editMarketItem(button.dataset.editMarket));
-    });
-    marketList.querySelectorAll('[data-delete-market]').forEach((button) => {
-        button.addEventListener('click', () => deleteMarketItem(button.dataset.deleteMarket));
+    shoppingList.querySelectorAll('[data-toggle-shopping]').forEach((button) => {
+        button.addEventListener('click', () => toggleShoppingItem(button.dataset.toggleShopping));
     });
 }
 
@@ -600,6 +619,7 @@ async function saveMarketItem() {
         needed: Number(document.getElementById('market-needed').value) || 0,
         have: Number(document.getElementById('market-have').value) || 0,
         unit: document.getElementById('market-unit').value.trim(),
+        checked: marketFormState.checked || false,
     };
 
     if (!item.name || !item.unit || !item.needed) {
@@ -621,7 +641,7 @@ async function saveMarketItem() {
 function editMarketItem(itemId) {
     const item = state.market.find((entry) => entry.id === itemId);
     if (!item) return;
-    marketFormState = { id: item.id, linkedFoodId: item.linkedFoodId || null };
+    marketFormState = { id: item.id, linkedFoodId: item.linkedFoodId || null, checked: !!item.checked };
     document.getElementById('market-food-search').value = item.linkedFoodId ? item.name : '';
     document.getElementById('market-manual-name').value = item.linkedFoodId ? '' : item.name;
     document.getElementById('market-needed').value = item.needed;
@@ -637,8 +657,16 @@ async function deleteMarketItem(itemId) {
     render();
 }
 
+async function toggleShoppingItem(itemId) {
+    const item = state.market.find((entry) => entry.id === itemId);
+    if (!item) return;
+    item.checked = !item.checked;
+    await saveState();
+    render();
+}
+
 function resetMarketForm() {
-    marketFormState = { id: null, linkedFoodId: null };
+    marketFormState = { id: null, linkedFoodId: null, checked: false };
     ['market-food-search', 'market-manual-name', 'market-needed', 'market-have', 'market-unit']
         .forEach((id) => { document.getElementById(id).value = ''; });
     hideMarketSuggestions();

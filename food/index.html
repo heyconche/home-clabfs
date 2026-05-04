@@ -277,6 +277,13 @@
             border-radius: 0.875rem;
         }
 
+        .shopping-card {
+            padding: 0.95rem;
+            background: var(--surface-strong);
+            border: 1px solid var(--border);
+            border-radius: 0.875rem;
+        }
+
         .market-top {
             display: flex;
             justify-content: space-between;
@@ -294,6 +301,47 @@
             font-size: 0.78rem;
             color: var(--muted);
             margin-top: 0.25rem;
+        }
+
+        .shopping-row {
+            display: grid;
+            grid-template-columns: auto 1fr auto;
+            gap: 0.75rem;
+            align-items: center;
+        }
+
+        .shopping-toggle {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            border: 1px solid var(--border);
+            background: transparent;
+            color: var(--muted);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.85rem;
+            transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+        }
+
+        .shopping-toggle.done {
+            border-color: rgba(34, 197, 94, 0.45);
+            background: rgba(34, 197, 94, 0.14);
+            color: var(--green);
+        }
+
+        .shopping-name {
+            font-weight: 800;
+            font-size: 0.98rem;
+        }
+
+        .shopping-card.done .shopping-name {
+            text-decoration: line-through;
+            color: var(--muted);
+        }
+
+        .shopping-card.done .active-badge {
+            opacity: 0.65;
         }
 
         .market-stats {
@@ -495,6 +543,7 @@
                 <button class="tab active" data-tab="today" type="button">Hoje</button>
                 <button class="tab" data-tab="foods" type="button">Alimentos</button>
                 <button class="tab" data-tab="market" type="button">Mercado</button>
+                <button class="tab" data-tab="shopping" type="button">Comprar agora</button>
                 <button class="tab" data-tab="history" type="button">Historico</button>
             </div>
             <span class="pill" id="last-saved">sem sincronizacao ainda</span>
@@ -630,11 +679,19 @@
                         </div>
                     </div>
                     <div class="card">
-                        <div class="label">Comprar agora</div>
-                        <h2 style="margin-top:0.35rem;">Visao rapida para o mercado</h2>
-                        <div class="market-list" id="shopping-list" style="margin-top:1rem;"></div>
+                        <div class="label">Resumo</div>
+                        <h2 style="margin-top:0.35rem;">Preparacao da compra</h2>
+                        <div class="metric-note" style="margin-top:0.8rem;">Monte a lista aqui e use a aba dedicada de compras para marcar o que ja pegou no mercado.</div>
                     </div>
                 </div>
+            </div>
+        </section>
+
+        <section class="section" id="shopping">
+            <div class="card">
+                <div class="label">Checklist</div>
+                <h2 style="margin-top:0.35rem;">Comprar agora</h2>
+                <div class="market-list" id="shopping-list" style="margin-top:1rem;"></div>
             </div>
         </section>
 
