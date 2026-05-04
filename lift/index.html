@@ -218,6 +218,12 @@
             align-items: start;
         }
 
+        .progress-grid {
+            display: grid;
+            grid-template-columns: 1.15fr 0.85fr;
+            gap: 1rem;
+        }
+
         .history-grid {
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
         }
@@ -250,6 +256,12 @@
             font-size: 0.82rem;
             color: var(--muted);
             margin-top: 0.25rem;
+        }
+
+        .metric-meta {
+            font-size: 0.75rem;
+            color: var(--muted);
+            margin-top: 0.35rem;
         }
 
         .stack {
@@ -439,20 +451,18 @@
 
         .editor-row {
             display: grid;
-            grid-template-columns: 1.6fr 0.6fr 0.6fr 0.6fr auto;
+            grid-template-columns: 1.35fr 0.65fr 0.65fr 0.65fr 1fr auto;
             gap: 0.6rem;
             align-items: center;
         }
 
-        .editor-header {
+        .editor-field {
             display: grid;
-            grid-template-columns: 1.6fr 0.6fr 0.6fr 0.6fr auto;
-            gap: 0.6rem;
-            margin-bottom: 0.55rem;
+            gap: 0.35rem;
         }
 
-        .editor-header span {
-            font-size: 0.68rem;
+        .editor-field span {
+            font-size: 0.66rem;
             text-transform: uppercase;
             letter-spacing: 0.12em;
             color: var(--muted);
@@ -461,6 +471,72 @@
         .editor-hint {
             font-size: 0.8rem;
             color: var(--muted);
+        }
+
+        .chart-list,
+        .measure-list {
+            display: grid;
+            gap: 0.8rem;
+        }
+
+        .chart-card,
+        .measure-card {
+            background: var(--surface-strong);
+            border: 1px solid var(--border);
+            border-radius: 0.875rem;
+            padding: 0.95rem;
+        }
+
+        .chart-card header,
+        .measure-card header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            gap: 0.75rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .chart-card svg,
+        .measure-card svg {
+            width: 100%;
+            height: 180px;
+            display: block;
+        }
+
+        .chart-empty {
+            border: 1px dashed var(--border);
+            border-radius: 0.875rem;
+            padding: 1rem;
+            color: var(--muted);
+            text-align: center;
+        }
+
+        .measure-form {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 0.7rem;
+            margin-top: 1rem;
+        }
+
+        .mini-stat-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 0.7rem;
+            margin-top: 1rem;
+        }
+
+        .mini-stat {
+            background: var(--surface-strong);
+            border: 1px solid var(--border);
+            border-radius: 0.875rem;
+            padding: 0.8rem;
+        }
+
+        .mini-stat strong {
+            display: block;
+            font-size: 1.05rem;
+            margin-top: 0.35rem;
+            letter-spacing: -0.03em;
         }
 
         .empty {
@@ -497,6 +573,10 @@
             .board-grid {
                 grid-template-columns: 1fr;
             }
+
+            .progress-grid {
+                grid-template-columns: 1fr;
+            }
         }
 
         @media (max-width: 720px) {
@@ -504,6 +584,7 @@
             header { grid-template-columns: 1fr; }
             .top-actions { justify-content: flex-start; }
             .form-grid,
+            .measure-form,
             .editor-row {
                 grid-template-columns: 1fr;
             }
@@ -566,6 +647,7 @@
             <div class="tabs">
                 <button class="tab active" data-tab="today" type="button">Hoje</button>
                 <button class="tab" data-tab="routines" type="button">Rotinas</button>
+                <button class="tab" data-tab="progress" type="button">Progresso</button>
                 <button class="tab" data-tab="history" type="button">Historico</button>
             </div>
             <div class="pill" id="last-saved">sem sincronizacao ainda</div>
@@ -634,6 +716,62 @@
                     <button class="danger-btn" id="clear-history-btn" type="button">limpar historico</button>
                 </div>
                 <div class="history-grid" id="history-list" style="margin-top:1rem;"></div>
+            </div>
+        </section>
+
+        <section class="section" id="progress">
+            <div class="progress-grid">
+                <div class="card">
+                    <div class="label">Desenvolvimento por musculo</div>
+                    <h2 style="margin-top:0.35rem;">Volume load ao longo dos treinos</h2>
+                    <div class="chart-list" id="muscle-charts" style="margin-top:1rem;"></div>
+                </div>
+                <div class="stack">
+                    <div class="card">
+                        <div class="label">Peso e medidas</div>
+                        <h2 style="margin-top:0.35rem;">Acompanhamento corporal</h2>
+                        <div class="measure-form" id="measure-form">
+                            <label class="field-block">
+                                <span class="field-label">Data</span>
+                                <input id="measure-date" type="date">
+                            </label>
+                            <label class="field-block">
+                                <span class="field-label">Peso (kg)</span>
+                                <input id="measure-weight" type="number" step="0.1" min="0" placeholder="82.4">
+                            </label>
+                            <label class="field-block">
+                                <span class="field-label">Biceps (cm)</span>
+                                <input id="measure-biceps" type="number" step="0.1" min="0" placeholder="38">
+                            </label>
+                            <label class="field-block">
+                                <span class="field-label">Cintura (cm)</span>
+                                <input id="measure-waist" type="number" step="0.1" min="0" placeholder="82">
+                            </label>
+                            <label class="field-block">
+                                <span class="field-label">Coxa (cm)</span>
+                                <input id="measure-thigh" type="number" step="0.1" min="0" placeholder="61">
+                            </label>
+                            <label class="field-block">
+                                <span class="field-label">Panturrilha (cm)</span>
+                                <input id="measure-calf" type="number" step="0.1" min="0" placeholder="39">
+                            </label>
+                            <label class="field-block full">
+                                <span class="field-label">Peitoral (cm)</span>
+                                <input id="measure-chest" type="number" step="0.1" min="0" placeholder="106">
+                            </label>
+                        </div>
+                        <div class="inline-actions" style="margin-top:1rem;">
+                            <button class="save-btn" id="save-measure-btn" type="button">salvar medidas</button>
+                            <button class="danger-btn" id="clear-measures-btn" type="button">limpar medidas</button>
+                        </div>
+                        <div class="mini-stat-grid" id="measure-summary"></div>
+                    </div>
+                    <div class="card">
+                        <div class="label">Graficos corporais</div>
+                        <h2 style="margin-top:0.35rem;">Evolucao recente</h2>
+                        <div class="measure-list" id="measure-charts" style="margin-top:1rem;"></div>
+                    </div>
+                </div>
             </div>
         </section>
     </div>

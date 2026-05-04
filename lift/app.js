@@ -10,6 +10,9 @@ const editorTitle = document.getElementById('editor-title');
 const syncStatus = document.getElementById('sync-status');
 const activeStatus = document.getElementById('active-status');
 const lastSaved = document.getElementById('last-saved');
+const muscleCharts = document.getElementById('muscle-charts');
+const measureCharts = document.getElementById('measure-charts');
+const measureSummary = document.getElementById('measure-summary');
 
 const defaultState = {
     routines: [
@@ -19,10 +22,10 @@ const defaultState = {
             focus: 'Peito, costas e ombro',
             notes: 'Foco em cargas consistentes e ultima serie perto da falha.',
             exercises: [
-                exerciseTemplate('Supino reto', 4, 8, 32),
-                exerciseTemplate('Remada curvada', 4, 10, 28),
-                exerciseTemplate('Desenvolvimento halteres', 3, 10, 18),
-                exerciseTemplate('Rosca direta', 3, 12, 14),
+                exerciseTemplate('Supino reto', 4, 8, 32, 'Peitoral'),
+                exerciseTemplate('Remada curvada', 4, 10, 28, 'Costas'),
+                exerciseTemplate('Desenvolvimento halteres', 3, 10, 18, 'Ombro'),
+                exerciseTemplate('Rosca direta', 3, 12, 14, 'Biceps'),
             ],
         },
         {
@@ -31,10 +34,10 @@ const defaultState = {
             focus: 'Quadriceps, posterior e gluteo',
             notes: 'Descanse 90-120s nos compostos.',
             exercises: [
-                exerciseTemplate('Agachamento livre', 4, 6, 70),
-                exerciseTemplate('Leg press', 4, 10, 180),
-                exerciseTemplate('Stiff', 3, 10, 60),
-                exerciseTemplate('Panturrilha em pe', 4, 12, 40),
+                exerciseTemplate('Agachamento livre', 4, 6, 70, 'Quadriceps'),
+                exerciseTemplate('Leg press', 4, 10, 180, 'Quadriceps'),
+                exerciseTemplate('Stiff', 3, 10, 60, 'Posterior'),
+                exerciseTemplate('Panturrilha em pe', 4, 12, 40, 'Panturrilha'),
             ],
         },
         {
@@ -43,15 +46,16 @@ const defaultState = {
             focus: 'Costas e bracos',
             notes: 'Boa opcao para um treino mais curto.',
             exercises: [
-                exerciseTemplate('Puxada alta', 4, 10, 55),
-                exerciseTemplate('Remada baixa', 4, 10, 50),
-                exerciseTemplate('Face pull', 3, 15, 22),
-                exerciseTemplate('Triceps corda', 3, 12, 25),
+                exerciseTemplate('Puxada alta', 4, 10, 55, 'Costas'),
+                exerciseTemplate('Remada baixa', 4, 10, 50, 'Costas'),
+                exerciseTemplate('Face pull', 3, 15, 22, 'Ombro'),
+                exerciseTemplate('Triceps corda', 3, 12, 25, 'Triceps'),
             ],
         },
     ],
     logs: [],
     activeWorkout: null,
+    bodyMetrics: [],
 };
 
 let state = clone(defaultState);
@@ -60,10 +64,11 @@ let saveErrorShown = false;
 
 bootstrap();
 
-function exerciseTemplate(name, sets, reps, weight) {
+function exerciseTemplate(name, sets, reps, weight, muscle = '') {
     return {
         id: uid(),
         name,
+        muscle,
         notes: '',
         sets: Array.from({ length: sets }, (_, index) => ({
             id: uid(),
@@ -84,6 +89,7 @@ function buildEditor(routine = null) {
             exercises: routine.exercises.map((exercise) => ({
                 id: exercise.id,
                 name: exercise.name,
+                muscle: exercise.muscle || '',
                 sets: exercise.sets.length || 3,
                 reps: exercise.sets[0]?.reps || 10,
                 weight: exercise.sets[0]?.weight || 0,
@@ -97,8 +103,8 @@ function buildEditor(routine = null) {
         focus: '',
         notes: '',
         exercises: [
-            { id: uid(), name: 'Supino reto', sets: 4, reps: 8, weight: 32 },
-            { id: uid(), name: 'Remada curvada', sets: 4, reps: 10, weight: 28 },
+            { id: uid(), name: 'Supino reto', muscle: 'Peitoral', sets: 4, reps: 8, weight: 32 },
+            { id: uid(), name: 'Remada curvada', muscle: 'Costas', sets: 4, reps: 10, weight: 28 },
         ],
     };
 }
@@ -127,6 +133,8 @@ function bindEvents() {
         renderEditor();
     });
     document.getElementById('clear-history-btn').addEventListener('click', clearHistory);
+    document.getElementById('save-measure-btn').addEventListener('click', saveBodyMetric);
+    document.getElementById('clear-measures-btn').addEventListener('click', clearMeasures);
 
     document.getElementById('routine-name').addEventListener('input', (event) => {
         editorState.name = event.target.value;
@@ -168,6 +176,7 @@ function mergeState(incoming) {
         routines: Array.isArray(incoming?.routines) ? incoming.routines : clone(defaultState.routines),
         logs: Array.isArray(incoming?.logs) ? incoming.logs : [],
         activeWorkout: incoming?.activeWorkout || null,
+        bodyMetrics: Array.isArray(incoming?.bodyMetrics) ? incoming.bodyMetrics : [],
     };
 }
 
@@ -177,6 +186,7 @@ function render() {
     renderRoutineList();
     renderEditor();
     renderHistory();
+    renderProgress();
     renderActiveStatus();
 }
 
@@ -403,18 +413,27 @@ function renderEditor() {
     editorExercises.innerHTML = editorState.exercises.map((exercise, index) => `
         <div class="editor-card">
             <div class="editor-hint">Exercicio ${index + 1}</div>
-            <div class="editor-header">
-                <span>Exercicio</span>
-                <span>Series</span>
-                <span>Reps</span>
-                <span>Carga</span>
-                <span></span>
-            </div>
             <div class="editor-row">
-                <input value="${escapeHtml(exercise.name)}" placeholder="Ex: Supino reto" data-editor-field="name" data-editor-index="${index}">
-                <input type="number" min="1" value="${exercise.sets}" placeholder="4" data-editor-field="sets" data-editor-index="${index}">
-                <input type="number" min="1" value="${exercise.reps}" placeholder="8" data-editor-field="reps" data-editor-index="${index}">
-                <input type="number" min="0" step="0.5" value="${exercise.weight}" placeholder="32" data-editor-field="weight" data-editor-index="${index}">
+                <label class="editor-field">
+                    <span>Exercicio</span>
+                    <input value="${escapeHtml(exercise.name)}" placeholder="Ex: Supino reto" data-editor-field="name" data-editor-index="${index}">
+                </label>
+                <label class="editor-field">
+                    <span>Series</span>
+                    <input type="number" min="1" value="${exercise.sets}" placeholder="4" data-editor-field="sets" data-editor-index="${index}">
+                </label>
+                <label class="editor-field">
+                    <span>Reps</span>
+                    <input type="number" min="1" value="${exercise.reps}" placeholder="8" data-editor-field="reps" data-editor-index="${index}">
+                </label>
+                <label class="editor-field">
+                    <span>Carga (kg)</span>
+                    <input type="number" min="0" step="0.5" value="${exercise.weight}" placeholder="32" data-editor-field="weight" data-editor-index="${index}">
+                </label>
+                <label class="editor-field">
+                    <span>Musculo</span>
+                    <input value="${escapeHtml(exercise.muscle || '')}" placeholder="Ex: Peitoral" data-editor-field="muscle" data-editor-index="${index}">
+                </label>
                 <button class="danger-btn" type="button" data-remove-exercise="${index}">x</button>
             </div>
         </div>
@@ -461,6 +480,13 @@ function renderHistory() {
     `).join('') || '<div class="empty">Nenhum treino salvo ainda.</div>';
 }
 
+function renderProgress() {
+    renderMuscleCharts();
+    renderMeasureSummary();
+    renderMeasureCharts();
+    seedMeasureForm();
+}
+
 function renderActiveStatus() {
     if (!state.activeWorkout) {
         activeStatus.textContent = 'nenhum treino ativo';
@@ -497,6 +523,7 @@ async function startWorkout(routineId) {
         exercises: routine.exercises.map((exercise) => ({
             id: uid(),
             name: exercise.name,
+            muscle: exercise.muscle || '',
             sets: exercise.sets.map((set) => ({
                 id: uid(),
                 weight: Number(set.weight) || 0,
@@ -552,6 +579,7 @@ async function finishWorkout() {
         endedAt,
         durationMin: Math.max(1, Math.round((new Date(endedAt) - new Date(workout.startedAt)) / 60000)),
     });
+    applyRoutineProgression(workout);
     state.activeWorkout = null;
     await saveState();
     render();
@@ -568,7 +596,13 @@ async function discardWorkout() {
 async function saveRoutineFromEditor() {
     const cleanExercises = editorState.exercises
         .filter((exercise) => exercise.name && Number(exercise.sets) > 0 && Number(exercise.reps) > 0)
-        .map((exercise) => exerciseTemplate(exercise.name, Number(exercise.sets), Number(exercise.reps), Number(exercise.weight) || 0));
+        .map((exercise) => exerciseTemplate(
+            exercise.name,
+            Number(exercise.sets),
+            Number(exercise.reps),
+            Number(exercise.weight) || 0,
+            exercise.muscle || ''
+        ));
 
     if (!editorState.name.trim()) {
         window.alert('Defina um nome para a rotina.');
@@ -608,6 +642,210 @@ async function clearHistory() {
     render();
 }
 
+async function clearMeasures() {
+    if (!window.confirm('Limpar todas as medidas corporais salvas no servidor?')) {
+        return;
+    }
+    state.bodyMetrics = [];
+    await saveState();
+    render();
+}
+
+async function saveBodyMetric() {
+    const entry = {
+        id: uid(),
+        date: document.getElementById('measure-date').value || new Date().toISOString().slice(0, 10),
+        weight: readMeasureValue('measure-weight'),
+        biceps: readMeasureValue('measure-biceps'),
+        waist: readMeasureValue('measure-waist'),
+        thigh: readMeasureValue('measure-thigh'),
+        calf: readMeasureValue('measure-calf'),
+        chest: readMeasureValue('measure-chest'),
+    };
+
+    state.bodyMetrics = state.bodyMetrics.filter((item) => item.date !== entry.date);
+    state.bodyMetrics.unshift(entry);
+    state.bodyMetrics.sort((a, b) => new Date(b.date) - new Date(a.date));
+    await saveState();
+    render();
+}
+
+function applyRoutineProgression(workout) {
+    const routine = state.routines.find((item) => item.id === workout.routineId);
+    if (!routine) return;
+
+    workout.exercises.forEach((loggedExercise) => {
+        const completedSets = loggedExercise.sets.filter((set) => set.done);
+        if (!completedSets.length) return;
+
+        const bestSet = completedSets.sort(compareSets)[0];
+        const routineExercise = routine.exercises.find((item) => item.name === loggedExercise.name);
+        if (!routineExercise) return;
+
+        const templateSet = routineExercise.sets[0] || { weight: 0, reps: 0 };
+        if (isSetImprovement(bestSet, templateSet)) {
+            routineExercise.muscle = loggedExercise.muscle || routineExercise.muscle || '';
+            routineExercise.sets = routineExercise.sets.map(() => ({
+                id: uid(),
+                weight: Number(bestSet.weight) || 0,
+                reps: Number(bestSet.reps) || 0,
+                done: false,
+            }));
+        }
+    });
+}
+
+function compareSets(a, b) {
+    const weightDelta = (Number(b?.weight) || 0) - (Number(a?.weight) || 0);
+    if (weightDelta !== 0) return weightDelta;
+    return (Number(b?.reps) || 0) - (Number(a?.reps) || 0);
+}
+
+function isSetImprovement(candidate, current) {
+    const candidateWeight = Number(candidate?.weight) || 0;
+    const currentWeight = Number(current?.weight) || 0;
+    if (candidateWeight > currentWeight) return true;
+    if (candidateWeight < currentWeight) return false;
+    return (Number(candidate?.reps) || 0) >= (Number(current?.reps) || 0);
+}
+
+function renderMuscleCharts() {
+    const muscleData = buildMuscleSeries();
+    const cards = Object.entries(muscleData).map(([muscle, points]) => {
+        const lastPoint = points[points.length - 1];
+        return `
+            <div class="chart-card">
+                <header>
+                    <div>
+                        <div class="title">${escapeHtml(muscle)}</div>
+                        <div class="muted">${points.length} sessoes com volume registrado</div>
+                    </div>
+                    <span class="active-badge">${lastPoint ? `${Math.round(lastPoint.value)} kg` : '0 kg'}</span>
+                </header>
+                ${points.length >= 2 ? buildLineChart(points, '#a855f7') : '<div class="chart-empty">Registre pelo menos 2 treinos desse musculo para ver a linha de progresso.</div>'}
+            </div>
+        `;
+    });
+
+    muscleCharts.innerHTML = cards.join('') || '<div class="chart-empty">Conforme voce registrar treinos, o progresso por musculo vai aparecer aqui.</div>';
+}
+
+function renderMeasureSummary() {
+    const latest = [...state.bodyMetrics].sort((a, b) => new Date(b.date) - new Date(a.date))[0];
+    if (!latest) {
+        measureSummary.innerHTML = '<div class="chart-empty">Adicione sua primeira medicao para acompanhar evolucao de peso e medidas.</div>';
+        return;
+    }
+
+    const stats = [
+        ['Peso', latest.weight, 'kg'],
+        ['Biceps', latest.biceps, 'cm'],
+        ['Cintura', latest.waist, 'cm'],
+        ['Coxa', latest.thigh, 'cm'],
+        ['Panturrilha', latest.calf, 'cm'],
+        ['Peitoral', latest.chest, 'cm'],
+    ];
+
+    measureSummary.innerHTML = stats.map(([label, value, unit]) => `
+        <div class="mini-stat">
+            <div class="label">${label}</div>
+            <strong>${value ? `${value}${unit}` : '--'}</strong>
+            <div class="metric-meta">${formatDate(latest.date)}</div>
+        </div>
+    `).join('');
+}
+
+function renderMeasureCharts() {
+    const fields = [
+        ['weight', 'Peso corporal', '#22c55e', 'kg'],
+        ['biceps', 'Biceps', '#a855f7', 'cm'],
+        ['waist', 'Cintura', '#f97316', 'cm'],
+        ['thigh', 'Coxa', '#3b82f6', 'cm'],
+        ['calf', 'Panturrilha', '#eab308', 'cm'],
+        ['chest', 'Peitoral', '#ec4899', 'cm'],
+    ];
+
+    const sorted = [...state.bodyMetrics].sort((a, b) => new Date(a.date) - new Date(b.date));
+    measureCharts.innerHTML = fields.map(([field, label, color, unit]) => {
+        const points = sorted
+            .filter((item) => Number(item[field]) > 0)
+            .map((item) => ({ label: formatShortDate(item.date), value: Number(item[field]) }));
+
+        return `
+            <div class="measure-card">
+                <header>
+                    <div class="title">${label}</div>
+                    <div class="muted">${points.length ? `${points[points.length - 1].value}${unit}` : 'sem dados'}</div>
+                </header>
+                ${points.length >= 2 ? buildLineChart(points, color) : '<div class="chart-empty">Adicione pelo menos 2 medicoes para visualizar a evolucao.</div>'}
+            </div>
+        `;
+    }).join('');
+}
+
+function buildMuscleSeries() {
+    const series = {};
+    [...state.logs]
+        .sort((a, b) => new Date(a.startedAt) - new Date(b.startedAt))
+        .forEach((log) => {
+            const byMuscle = {};
+            log.exercises.forEach((exercise) => {
+                const muscle = exercise.muscle || 'Geral';
+                const volume = exercise.sets.reduce((sum, set) => {
+                    if (!set.done) return sum;
+                    return sum + (Number(set.weight) || 0) * (Number(set.reps) || 0);
+                }, 0);
+                byMuscle[muscle] = (byMuscle[muscle] || 0) + volume;
+            });
+
+            Object.entries(byMuscle).forEach(([muscle, value]) => {
+                if (!series[muscle]) series[muscle] = [];
+                series[muscle].push({ label: formatShortDate(log.startedAt), value });
+            });
+        });
+    return series;
+}
+
+function buildLineChart(points, color) {
+    const width = 320;
+    const height = 180;
+    const padding = 20;
+    const values = points.map((point) => point.value);
+    const min = Math.min(...values);
+    const max = Math.max(...values);
+    const range = max - min || 1;
+
+    const coords = points.map((point, index) => {
+        const x = padding + (index * (width - padding * 2)) / Math.max(points.length - 1, 1);
+        const y = height - padding - ((point.value - min) / range) * (height - padding * 2);
+        return { ...point, x, y };
+    });
+
+    const polyline = coords.map((point) => `${point.x},${point.y}`).join(' ');
+    const labels = coords.map((point) => `
+        <circle cx="${point.x}" cy="${point.y}" r="4" fill="${color}"></circle>
+        <text x="${point.x}" y="${height - 4}" text-anchor="middle" font-size="10" fill="#94a3b8">${point.label}</text>
+    `).join('');
+
+    return `
+        <svg viewBox="0 0 ${width} ${height}" role="img" aria-label="grafico de linha">
+            <line x1="${padding}" y1="${height - padding}" x2="${width - padding}" y2="${height - padding}" stroke="#334155" stroke-width="1"></line>
+            <line x1="${padding}" y1="${padding}" x2="${padding}" y2="${height - padding}" stroke="#334155" stroke-width="1"></line>
+            <polyline fill="none" stroke="${color}" stroke-width="3" points="${polyline}"></polyline>
+            ${labels}
+        </svg>
+    `;
+}
+
+function seedMeasureForm() {
+    document.getElementById('measure-date').value = new Date().toISOString().slice(0, 10);
+}
+
+function readMeasureValue(id) {
+    const value = Number(document.getElementById(id).value);
+    return Number.isFinite(value) && value > 0 ? value : 0;
+}
+
 function calcWorkoutVolume(workout) {
     return workout.exercises.reduce((sum, exercise) => {
         return sum + exercise.sets.reduce((exerciseTotal, set) => {
@@ -615,6 +853,13 @@ function calcWorkoutVolume(workout) {
             return exerciseTotal + (Number(set.weight) || 0) * (Number(set.reps) || 0);
         }, 0);
     }, 0);
+}
+
+function formatShortDate(value) {
+    return new Date(value).toLocaleDateString('pt-BR', {
+        day: '2-digit',
+        month: '2-digit',
+    });
 }
 
 function computeStreak() {
