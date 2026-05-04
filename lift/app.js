@@ -1,4 +1,3 @@
-const STORAGE_KEY = 'lift-local-cache-v1';
 const tabs = Array.from(document.querySelectorAll('.tab'));
 const summaryGrid = document.getElementById('summary-grid');
 const routineList = document.getElementById('routine-list');
@@ -57,6 +56,7 @@ const defaultState = {
 
 let state = clone(defaultState);
 let editorState = buildEditor();
+let saveErrorShown = false;
 
 bootstrap();
 
@@ -148,25 +148,17 @@ function switchTab(id) {
 }
 
 async function loadState() {
-    const localCache = readLocalCache();
-    if (localCache) {
-        state = mergeState(localCache);
-        syncStatus.textContent = 'carregado do cache local';
-    }
-
     try {
         const response = await fetch('/api/lift/state', { credentials: 'include' });
         if (!response.ok) throw new Error('api unavailable');
         const remoteState = mergeState(await response.json());
         state = remoteState;
-        persistLocalCache();
         stampSaved('sincronizado com servidor');
     } catch (error) {
-        if (!localCache) {
-            state = mergeState(defaultState);
-            persistLocalCache();
-        }
-        syncStatus.textContent = 'offline: usando cache local';
+        state = mergeState(defaultState);
+        syncStatus.textContent = 'erro ao carregar do servidor';
+        lastSaved.textContent = 'sem dados do servidor';
+        window.alert('Nao foi possivel carregar seus dados de treino do servidor. Verifique a sessao e tente recarregar a pagina.');
     }
 }
 
@@ -453,7 +445,7 @@ function renderHistory() {
                     </div>
                 `).join('')}
             </div>
-            ${log.notes ? `<div class="install-tip" style="margin-top:0.8rem;background:rgba(212,106,45,0.08);color:var(--accent-strong);">${escapeHtml(log.notes)}</div>` : ''}
+            ${log.notes ? `<div class="install-tip" style="margin-top:0.8rem;">${escapeHtml(log.notes)}</div>` : ''}
         </div>
     `).join('') || '<div class="empty">Nenhum treino salvo ainda.</div>';
 }
@@ -635,8 +627,6 @@ function computeStreak() {
 }
 
 async function saveState() {
-    persistLocalCache();
-
     try {
         const response = await fetch('/api/lift/state', {
             method: 'POST',
@@ -645,35 +635,32 @@ async function saveState() {
             body: JSON.stringify(state),
         });
         if (!response.ok) throw new Error('save failed');
+        saveErrorShown = false;
         stampSaved('sincronizado agora');
     } catch (error) {
-        syncStatus.textContent = 'offline: salvo so no aparelho';
-        lastSaved.textContent = `cache local salvo ${formatTime(new Date().toISOString())}`;
+        syncStatus.textContent = 'erro ao salvar no servidor';
+        lastSaved.textContent = 'alteracoes nao sincronizadas';
+        if (!saveErrorShown) {
+            saveErrorShown = true;
+            window.alert('Nao foi possivel salvar no servidor. As alteracoes desta sessao nao devem ser consideradas persistidas.');
+        }
+        throw error;
     }
 }
 
 let saveTimer = null;
 function queueSave() {
-    persistLocalCache();
     clearTimeout(saveTimer);
     return new Promise((resolve) => {
         saveTimer = setTimeout(async () => {
-            await saveState();
+            try {
+                await saveState();
+            } catch (error) {
+                // Keep the UI state in memory, but do not pretend it persisted.
+            }
             resolve();
         }, 250);
     });
-}
-
-function persistLocalCache() {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-}
-
-function readLocalCache() {
-    try {
-        return JSON.parse(localStorage.getItem(STORAGE_KEY));
-    } catch (error) {
-        return null;
-    }
 }
 
 function stampSaved(status) {
