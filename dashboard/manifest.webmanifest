@@ -1,0 +1,16 @@
+{
+  "name": "Conche",
+  "short_name": "Conche",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#0f172a",
+  "icons": [
+    {
+      "src": "/apple-touch-icon.png?v=1",
+      "sizes": "800x800",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

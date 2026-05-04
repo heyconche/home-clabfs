@@ -37,6 +37,19 @@ conche.com.br {
 # ── Filebrowser ────────────────────────────────────────────────────────────────
 nfs.conche.com.br {
     import no_cache
+    header {
+        +Link "</manifest.webmanifest>; rel=manifest"
+        +Link "</apple-touch-icon.png>; rel=\"apple-touch-icon\""
+    }
+
+    handle /apple-touch-icon.png {
+        root * /srv/static/nfs
+        file_server
+    }
+    handle /manifest.webmanifest {
+        root * /srv/static/nfs
+        file_server
+    }
 
     forward_auth auth:5001 {
         uri /verify

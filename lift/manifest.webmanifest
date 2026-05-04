@@ -3,13 +3,13 @@
   "short_name": "Lift",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#f6f0e8",
-  "theme_color": "#d46a2d",
+  "background_color": "#0f172a",
+  "theme_color": "#7E17B6",
   "description": "Controle simples de treinos no seu homelab.",
   "icons": [
     {
-      "src": "/apple-touch-icon.png?v=1",
-      "sizes": "180x180",
+      "src": "/apple-touch-icon-brand.png?v=1",
+      "sizes": "800x800",
       "type": "image/png",
       "purpose": "any maskable"
     },
