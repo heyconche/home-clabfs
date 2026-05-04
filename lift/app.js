@@ -126,6 +126,7 @@ function bindEvents() {
         editorState = buildEditor();
         renderEditor();
     });
+    document.getElementById('clear-history-btn').addEventListener('click', clearHistory);
 
     document.getElementById('routine-name').addEventListener('input', (event) => {
         editorState.name = event.target.value;
@@ -400,12 +401,22 @@ function renderEditor() {
     document.getElementById('routine-notes').value = editorState.notes;
 
     editorExercises.innerHTML = editorState.exercises.map((exercise, index) => `
-        <div class="editor-row">
-            <input value="${escapeHtml(exercise.name)}" placeholder="Exercicio" data-editor-field="name" data-editor-index="${index}">
-            <input type="number" min="1" value="${exercise.sets}" placeholder="Series" data-editor-field="sets" data-editor-index="${index}">
-            <input type="number" min="1" value="${exercise.reps}" placeholder="Reps" data-editor-field="reps" data-editor-index="${index}">
-            <input type="number" min="0" step="0.5" value="${exercise.weight}" placeholder="Carga" data-editor-field="weight" data-editor-index="${index}">
-            <button class="danger-btn" type="button" data-remove-exercise="${index}">x</button>
+        <div class="editor-card">
+            <div class="editor-hint">Exercicio ${index + 1}</div>
+            <div class="editor-header">
+                <span>Exercicio</span>
+                <span>Series</span>
+                <span>Reps</span>
+                <span>Carga</span>
+                <span></span>
+            </div>
+            <div class="editor-row">
+                <input value="${escapeHtml(exercise.name)}" placeholder="Ex: Supino reto" data-editor-field="name" data-editor-index="${index}">
+                <input type="number" min="1" value="${exercise.sets}" placeholder="4" data-editor-field="sets" data-editor-index="${index}">
+                <input type="number" min="1" value="${exercise.reps}" placeholder="8" data-editor-field="reps" data-editor-index="${index}">
+                <input type="number" min="0" step="0.5" value="${exercise.weight}" placeholder="32" data-editor-field="weight" data-editor-index="${index}">
+                <button class="danger-btn" type="button" data-remove-exercise="${index}">x</button>
+            </div>
         </div>
     `).join('');
 
@@ -584,6 +595,15 @@ async function saveRoutineFromEditor() {
     }
 
     editorState = buildEditor();
+    await saveState();
+    render();
+}
+
+async function clearHistory() {
+    if (!window.confirm('Limpar todo o historico de treinos salvo no servidor?')) {
+        return;
+    }
+    state.logs = [];
     await saveState();
     render();
 }
