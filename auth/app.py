@@ -114,6 +114,7 @@ def logout():
 
 
 FOOD_MARKET_FILE = '/data/food-market.json'
+FOOD_STATE_FILE = '/data/food-state.json'
 LIFT_STATE_FILE = '/data/lift-state.json'
 
 
@@ -140,6 +141,28 @@ def food_market_post():
     data = request.get_json(force=True)
     os.makedirs(os.path.dirname(FOOD_MARKET_FILE), exist_ok=True)
     with open(FOOD_MARKET_FILE, 'w') as f:
+        json.dump(data, f)
+    return '', 204
+
+
+@app.route('/food/state', methods=['GET'])
+def food_state_get():
+    if not _auth_ok():
+        return '', 401
+    try:
+        with open(FOOD_STATE_FILE) as f:
+            return jsonify(json.load(f))
+    except FileNotFoundError:
+        return jsonify({})
+
+
+@app.route('/food/state', methods=['POST'])
+def food_state_post():
+    if not _auth_ok():
+        return '', 401
+    data = request.get_json(force=True)
+    os.makedirs(os.path.dirname(FOOD_STATE_FILE), exist_ok=True)
+    with open(FOOD_STATE_FILE, 'w') as f:
         json.dump(data, f)
     return '', 204
 

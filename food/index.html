@@ -2,637 +2,558 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <title>food.conche.com.br</title>
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><text x='16' y='16' text-anchor='middle' dominant-baseline='central' font-family='system-ui,sans-serif' font-size='22' fill='%237E17B6'>🥗</text></svg>">
+    <meta name="theme-color" content="#7E17B6">
     <style>
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
         :root {
-            --bg:      #0f172a;
+            --bg: #0f172a;
+            --bg-strong: #111827;
             --surface: #1e293b;
-            --border:  #334155;
-            --text:    #f1f5f9;
-            --muted:   #94a3b8;
-            --accent:  #7E17B6;
-            --green:   #22c55e;
-            --yellow:  #eab308;
-            --red:     #ef4444;
-            --blue:    #3b82f6;
+            --surface-strong: #273449;
+            --border: #334155;
+            --text: #f1f5f9;
+            --muted: #94a3b8;
+            --accent: #7E17B6;
+            --green: #22c55e;
+            --yellow: #eab308;
+            --red: #ef4444;
+            --blue: #3b82f6;
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             background: var(--bg);
             color: var(--text);
             min-height: 100vh;
-            padding: 2.5rem 2rem;
-            max-width: 900px;
+            padding: 2rem 1rem 4rem;
+        }
+
+        .shell {
+            width: min(1180px, 100%);
             margin: 0 auto;
         }
 
         header {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 1rem;
+            align-items: start;
+            margin-bottom: 1.5rem;
+        }
+
+        .hero,
+        .card,
+        .meal-card,
+        .food-row,
+        .entry-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 0.875rem;
+        }
+
+        .hero,
+        .card {
+            padding: 1.25rem;
+        }
+
+        .hero {
+            display: grid;
+            gap: 0.85rem;
+        }
+
+        .brand {
             display: flex;
             align-items: center;
-            justify-content: space-between;
-            margin-bottom: 2.5rem;
-            gap: 1rem;
+            gap: 0.85rem;
+        }
+
+        .brand-mark {
+            width: 3rem;
+            height: 3rem;
+            border-radius: 0.875rem;
+            display: grid;
+            place-items: center;
+            background: var(--accent);
+            color: var(--text);
+            font-size: 1.55rem;
+        }
+
+        .label {
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            color: var(--muted);
+        }
+
+        h1, h2, h3 {
+            letter-spacing: -0.03em;
+        }
+
+        h1 {
+            font-size: clamp(2rem, 4vw, 3rem);
+            line-height: 0.95;
+        }
+
+        h1 span { color: var(--accent); }
+
+        .subtitle {
+            color: var(--muted);
+            max-width: 44rem;
+            line-height: 1.45;
+        }
+
+        .top-actions,
+        .inline-actions,
+        .tabs {
+            display: flex;
+            gap: 0.65rem;
             flex-wrap: wrap;
         }
 
-        header h1 { font-size: 1.6rem; font-weight: 800; letter-spacing: -0.03em; }
-        header h1 span { color: var(--accent); }
+        .top-actions { justify-content: flex-end; }
 
-        .header-right { display: flex; align-items: center; gap: 0.6rem; }
+        a, button { cursor: pointer; }
+        button, input, select { font: inherit; }
+
+        .pill,
+        .ghost-btn,
+        .action-btn,
+        .tab,
+        .mini-btn,
+        .danger-btn {
+            border-radius: 999px;
+            border: 1px solid var(--border);
+            background: var(--surface);
+            color: var(--text);
+        }
 
         .pill {
-            font-size: 0.8rem;
+            padding: 0.45rem 0.8rem;
+            font-size: 0.78rem;
             color: var(--muted);
-            background: var(--surface);
-            border: 1px solid var(--border);
-            padding: 0.3rem 0.75rem;
-            border-radius: 9999px;
         }
 
-        .btn-home {
-            font-size: 0.75rem;
-            color: var(--muted);
-            background: var(--surface);
-            border: 1px solid var(--border);
-            padding: 0.3rem 0.75rem;
-            border-radius: 9999px;
+        .ghost-btn,
+        .action-btn,
+        .tab,
+        .mini-btn,
+        .danger-btn {
+            padding: 0.75rem 1rem;
             text-decoration: none;
-            transition: border-color 0.15s, color 0.15s;
-        }
-        .btn-home:hover { border-color: var(--accent); color: var(--accent); }
-
-        .tabs {
-            display: flex;
-            gap: 0;
-            margin-bottom: 2rem;
-            border-bottom: 1px solid var(--border);
+            transition: transform 0.15s ease, border-color 0.15s ease, background 0.15s ease;
         }
 
-        .tab {
-            background: none;
-            border: none;
-            border-bottom: 2px solid transparent;
-            padding: 0.6rem 1.25rem;
-            font-size: 0.85rem;
-            font-weight: 600;
-            color: var(--muted);
-            cursor: pointer;
-            margin-bottom: -1px;
-            transition: color 0.15s, border-color 0.15s;
-            text-transform: uppercase;
-            letter-spacing: 0.08em;
+        .action-btn {
+            background: var(--accent);
+            border-color: var(--accent);
+            font-weight: 700;
         }
-        .tab:hover { color: var(--text); }
-        .tab.active { color: var(--text); border-bottom-color: var(--accent); }
+
+        .danger-btn { color: var(--red); }
+
+        .ghost-btn:hover,
+        .action-btn:hover,
+        .tab:hover,
+        .mini-btn:hover,
+        .danger-btn:hover {
+            transform: translateY(-1px);
+            border-color: rgba(126, 23, 182, 0.45);
+        }
+
+        .tab.active {
+            background: var(--text);
+            color: var(--bg);
+            border-color: var(--text);
+            font-weight: 700;
+        }
 
         .section { display: none; }
         .section.active { display: block; }
 
-        h2 {
-            font-size: 0.7rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.12em;
-            color: var(--muted);
+        .summary-grid,
+        .board-grid,
+        .goals-grid,
+        .foods-grid {
+            display: grid;
+            gap: 1rem;
+        }
+
+        .summary-grid {
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
             margin-bottom: 1rem;
         }
 
-        .macros-grid {
+        .board-grid {
+            grid-template-columns: 1.25fr 0.9fr;
+            align-items: start;
+        }
+
+        .metric-value {
+            font-size: 1.9rem;
+            font-weight: 800;
+            margin-top: 0.35rem;
+            letter-spacing: -0.05em;
+        }
+
+        .metric-note {
+            color: var(--muted);
+            font-size: 0.78rem;
+            margin-top: 0.3rem;
+        }
+
+        .progress-bar {
+            height: 8px;
+            background: var(--bg-strong);
+            border-radius: 999px;
+            overflow: hidden;
+            margin-top: 0.8rem;
+        }
+
+        .progress-fill {
+            height: 100%;
+            border-radius: 999px;
+            transition: width 0.25s ease;
+        }
+
+        .meal-stack,
+        .food-list,
+        .history-list,
+        .day-entries {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 1rem;
-            margin-bottom: 2rem;
+            gap: 0.85rem;
         }
-
-        .macro-card {
-            padding: 1.25rem 1.375rem;
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 0.875rem;
-        }
-
-        .macro-label { font-size: 0.8rem; color: var(--muted); font-weight: 500; margin-bottom: 0.3rem; }
-        .macro-value { font-size: 1.4rem; font-weight: 800; margin-bottom: 0.25rem; }
-        .macro-meta { font-size: 0.72rem; color: var(--muted); margin-bottom: 0.5rem; }
-        .macro-meta.ok { color: var(--green); }
-        .macro-meta.warn { color: var(--yellow); }
-
-        .progress-bar { height: 5px; background: var(--border); border-radius: 9999px; overflow: hidden; }
-        .progress-fill { height: 100%; border-radius: 9999px; transition: width 0.5s ease; }
 
         .meal-card {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 0.875rem;
-            margin-bottom: 0.75rem;
-            overflow: hidden;
+            padding: 1rem;
         }
 
-        .meal-header {
+        .meal-head {
             display: flex;
             justify-content: space-between;
-            align-items: center;
-            padding: 1rem 1.375rem;
-            cursor: pointer;
-            transition: background 0.15s;
+            align-items: start;
+            gap: 0.75rem;
+            margin-bottom: 0.9rem;
         }
-        .meal-header:hover { background: rgba(255,255,255,0.03); }
 
-        .meal-name { font-size: 1rem; font-weight: 700; }
-        .meal-macros { font-size: 0.72rem; color: var(--muted); margin-top: 0.2rem; }
+        .meal-name {
+            font-size: 1.05rem;
+            font-weight: 800;
+        }
 
-        .meal-chevron { font-size: 0.75rem; color: var(--muted); transition: transform 0.2s; }
-        .meal-chevron.open { transform: rotate(180deg); }
-
-        .meal-body { border-top: 1px solid var(--border); padding: 0.75rem 1.375rem; }
-
-        .ing-table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
-        .ing-table th {
-            text-align: left;
+        .meal-meta {
+            font-size: 0.76rem;
             color: var(--muted);
-            font-size: 0.68rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.08em;
-            padding: 0 0 0.5rem;
-        }
-        .ing-table th:not(:first-child) { text-align: center; }
-        .ing-table td { padding: 0.35rem 0; border-top: 1px solid rgba(51,65,85,0.5); }
-        .ing-table td:not(:first-child) { text-align: center; color: var(--muted); }
-        .ing-table .badge {
-            display: inline-block;
-            font-size: 0.65rem;
-            padding: 1px 7px;
-            border-radius: 9999px;
-            font-weight: 600;
-        }
-        .badge-p { background: rgba(126,23,182,0.25); color: #c084fc; }
-        .badge-c { background: rgba(59,130,246,0.25); color: #93c5fd; }
-        .badge-g { background: rgba(234,179,8,0.25); color: #fde047; }
-
-        .market-card {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 0.875rem;
-            overflow: hidden;
+            margin-top: 0.2rem;
         }
 
-        .market-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
-        .market-table th {
-            text-align: left;
-            color: var(--muted);
-            font-size: 0.68rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.08em;
-            padding: 0.75rem 1.375rem;
-            border-bottom: 1px solid var(--border);
-        }
-        .market-table th:not(:first-child) { text-align: center; }
-        .market-table td {
-            padding: 0.7rem 1.375rem;
-            border-bottom: 1px solid rgba(51,65,85,0.5);
-            vertical-align: middle;
-        }
-        .market-table td:not(:first-child) { text-align: center; }
-        .market-table tr:last-child td { border-bottom: none; }
-        .market-table tr.bought td { opacity: 0.45; }
-        .market-table tr.bought .ing-name { text-decoration: line-through; }
-
-        .qty-input {
-            width: 90px;
-            background: var(--bg);
-            border: 1px solid var(--border);
-            border-radius: 0.5rem;
-            padding: 0.3rem 0.5rem;
-            color: var(--text);
-            font-size: 0.82rem;
-            text-align: center;
-            transition: border-color 0.15s;
-        }
-        .qty-input:focus { outline: none; border-color: var(--accent); }
-
-        .check-btn {
-            width: 28px;
-            height: 28px;
-            border-radius: 50%;
-            border: 1px solid var(--border);
-            background: none;
-            cursor: pointer;
-            color: var(--muted);
-            font-size: 0.8rem;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            transition: background 0.15s, border-color 0.15s, color 0.15s;
-        }
-        .check-btn.done { background: rgba(34,197,94,0.15); border-color: var(--green); color: var(--green); }
-        .check-btn:hover:not(.done) { border-color: var(--muted); }
-
-        .del-btn {
-            width: 24px;
-            height: 24px;
-            border-radius: 50%;
-            border: 1px solid transparent;
-            background: none;
-            cursor: pointer;
-            color: var(--border);
-            font-size: 0.9rem;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            transition: color 0.15s, border-color 0.15s;
-        }
-        .del-btn:hover { color: var(--red); border-color: var(--red); }
-
-        .restante.ok { color: var(--green); }
-        .restante.warn { color: var(--yellow); }
-
-        .add-row {
+        .macro-chips {
             display: flex;
-            gap: 0.5rem;
-            padding: 0.875rem 1.375rem;
-            border-top: 1px solid var(--border);
-            align-items: center;
+            gap: 0.4rem;
             flex-wrap: wrap;
         }
 
-        .add-input {
-            flex: 1;
-            min-width: 140px;
-            background: var(--bg);
+        .chip {
+            border-radius: 999px;
+            font-size: 0.72rem;
+            padding: 0.3rem 0.65rem;
             border: 1px solid var(--border);
-            border-radius: 0.5rem;
-            padding: 0.4rem 0.75rem;
+            background: var(--surface-strong);
+            color: var(--muted);
+        }
+
+        .entry-card {
+            padding: 0.85rem 0.9rem;
+            background: var(--surface-strong);
+        }
+
+        .entry-head {
+            display: flex;
+            justify-content: space-between;
+            gap: 0.6rem;
+            align-items: center;
+        }
+
+        .entry-title {
+            font-weight: 700;
+        }
+
+        .entry-sub {
+            font-size: 0.78rem;
+            color: var(--muted);
+            margin-top: 0.25rem;
+        }
+
+        .form-grid,
+        .meal-form {
+            display: grid;
+            gap: 0.75rem;
+        }
+
+        .form-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            margin-top: 1rem;
+        }
+
+        .full { grid-column: 1 / -1; }
+
+        .field {
+            display: grid;
+            gap: 0.45rem;
+        }
+
+        .field-wrap {
+            position: relative;
+        }
+
+        .field span {
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            color: var(--muted);
+        }
+
+        input, textarea, select {
+            width: 100%;
+            border-radius: 0.75rem;
+            border: 1px solid var(--border);
+            background: var(--bg-strong);
             color: var(--text);
-            font-size: 0.82rem;
-            transition: border-color 0.15s;
+            padding: 0.8rem 0.9rem;
+            color-scheme: dark;
         }
-        .add-input:focus { outline: none; border-color: var(--accent); }
-        .add-input::placeholder { color: var(--muted); }
 
-        .add-btn {
-            background: var(--accent);
-            border: none;
-            border-radius: 0.5rem;
-            padding: 0.4rem 1rem;
-            color: #fff;
-            font-size: 0.82rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: opacity 0.15s;
-            white-space: nowrap;
+        textarea {
+            min-height: 6rem;
+            resize: vertical;
         }
-        .add-btn:hover { opacity: 0.85; }
 
-        .reset-btn {
-            font-size: 0.72rem;
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(126, 23, 182, 0.18);
+        }
+
+        input::placeholder,
+        textarea::placeholder {
             color: var(--muted);
-            background: none;
+        }
+
+        .suggestions {
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: calc(100% + 0.35rem);
+            background: var(--surface);
             border: 1px solid var(--border);
-            border-radius: 0.5rem;
-            padding: 0.4rem 0.75rem;
+            border-radius: 0.875rem;
+            overflow: hidden;
+            z-index: 20;
+            box-shadow: 0 16px 50px rgba(15, 23, 42, 0.3);
+        }
+
+        .suggestion {
+            padding: 0.8rem 0.9rem;
+            border-bottom: 1px solid rgba(51, 65, 85, 0.65);
             cursor: pointer;
-            transition: border-color 0.15s, color 0.15s;
-            white-space: nowrap;
         }
-        .reset-btn:hover { border-color: var(--red); color: var(--red); }
 
-        footer {
-            text-align: center;
-            font-size: 0.72rem;
+        .suggestion:last-child { border-bottom: none; }
+        .suggestion:hover { background: var(--surface-strong); }
+        .suggestion strong { display: block; }
+        .suggestion span { display: block; margin-top: 0.2rem; color: var(--muted); font-size: 0.76rem; }
+
+        .food-row {
+            padding: 0.95rem;
+        }
+
+        .food-head {
+            display: flex;
+            justify-content: space-between;
+            gap: 0.75rem;
+            align-items: start;
+        }
+
+        .food-name {
+            font-weight: 800;
+            font-size: 1rem;
+        }
+
+        .food-portion {
+            font-size: 0.78rem;
             color: var(--muted);
-            margin-top: 3rem;
+            margin-top: 0.25rem;
         }
 
-        @media (max-width: 600px) {
-            body { padding: 1.5rem 1rem; }
-            .macros-grid { grid-template-columns: 1fr 1fr; }
+        .active-badge {
+            border-radius: 999px;
+            padding: 0.35rem 0.7rem;
+            border: 1px solid rgba(126, 23, 182, 0.35);
+            background: rgba(126, 23, 182, 0.14);
+            color: #d8b4fe;
+            font-size: 0.76rem;
+            font-weight: 700;
+        }
 
-            /* Market table → 2-line card layout */
-            .market-table thead { display: none; }
-            .market-table tbody tr {
-                display: grid;
-                grid-template-columns: 1fr auto auto;
-                grid-template-rows: auto auto;
-                padding: 0.75rem 1rem;
-                gap: 0.4rem 0.5rem;
-                align-items: center;
-                border-bottom: 1px solid var(--border);
+        .empty {
+            border: 1px dashed var(--border);
+            border-radius: 0.875rem;
+            padding: 1rem;
+            text-align: center;
+            color: var(--muted);
+        }
+
+        @media (max-width: 920px) {
+            .board-grid {
+                grid-template-columns: 1fr;
             }
-            .market-table tbody tr:last-child { border-bottom: none; }
-            .market-table td {
-                padding: 0 !important;
-                border: none !important;
-                text-align: left !important;
-            }
-            /* line 1: ingredient name | check | del */
-            .market-table td:nth-child(1) { grid-column: 1; grid-row: 1; font-weight: 600; }
-            .market-table td:nth-child(5) { grid-column: 2; grid-row: 1; }
-            .market-table td:nth-child(6) { grid-column: 3; grid-row: 1; }
-            /* line 2: semana | comprado | restante */
-            .market-table td:nth-child(2) { grid-column: 1; grid-row: 2; }
-            .market-table td:nth-child(3) { grid-column: 2; grid-row: 2; }
-            .market-table td:nth-child(4) { grid-column: 3; grid-row: 2; font-size: 0.8rem; min-width: 48px; }
-            /* smaller inputs on mobile */
-            .market-table .qty-input { width: 72px; }
+        }
+
+        @media (max-width: 720px) {
+            body { padding: 1rem 0.8rem 4rem; }
+            header { grid-template-columns: 1fr; }
+            .top-actions { justify-content: flex-start; }
+            .form-grid { grid-template-columns: 1fr; }
+            .summary-grid { grid-template-columns: 1fr 1fr; }
         }
     </style>
 </head>
 <body>
-
-<header>
-    <h1><span>food</span>.conche.com.br</h1>
-    <div class="header-right">
-        <span class="pill" id="macro-status">carregando…</span>
-        <a class="btn-home" href="https://conche.com.br">← home</a>
-    </div>
-</header>
-
-<div class="tabs">
-    <button class="tab active" onclick="switchTab('dieta', this)">Dieta</button>
-    <button class="tab" onclick="switchTab('mercado', this)">Mercado</button>
-</div>
-
-<div id="dieta" class="section active">
-    <h2>resumo de macros</h2>
-    <div class="macros-grid" id="macro-cards"></div>
-    <h2>refeições do dia</h2>
-    <div id="meals-list"></div>
-</div>
-
-<div id="mercado" class="section">
-    <h2>lista da semana</h2>
-    <div class="market-card">
-        <table class="market-table">
-            <thead>
-                <tr>
-                    <th>ingrediente</th>
-                    <th>semana</th>
-                    <th>comprado</th>
-                    <th>restante</th>
-                    <th></th>
-                </tr>
-            </thead>
-            <tbody id="market-body"></tbody>
-        </table>
-        <div class="add-row">
-            <input id="new-item" class="add-input" placeholder="novo item…" onkeydown="if(event.key==='Enter')addItem()"/>
-            <input id="new-qty"  class="add-input" placeholder="qtde. semana" style="width:130px;flex:none" onkeydown="if(event.key==='Enter')addItem()"/>
-            <button class="add-btn" onclick="addItem()">+ adicionar</button>
-            <button class="reset-btn" onclick="resetWeek()">↺ nova semana</button>
-        </div>
-    </div>
-</div>
-
-<footer><span id="last-saved">—</span></footer>
-
-<script>
-const meals = [
-    { name: "café da manhã", items: [
-        { ing: "ovos",             qtde: "3 un",   p: 19.5,  c: 2.4,  g: 13.35 },
-        { ing: "proteína de soja", qtde: "20 g",   p: 10,    c: 4,    g: 0     },
-        { ing: "leite integral",   qtde: "200 ml", p: 6.2,   c: 9.6,  g: 6     }
-    ]},
-    { name: "lanche da manhã", items: [
-        { ing: "whey",           qtde: "30 g",   p: 23,   c: 4,    g: 1.6 },
-        { ing: "leite integral", qtde: "300 ml", p: 9.3,  c: 14.4, g: 9   }
-    ]},
-    { name: "almoço", items: [
-        { ing: "arroz cozido", qtde: "150 g", p: 3.775, c: 42.15, g: 0.3 },
-        { ing: "frango",       qtde: "150 g", p: 32.25, c: 0,     g: 4.5 },
-        { ing: "salada",       qtde: "1 un",  p: 0,     c: 0,     g: 0   },
-        { ing: "brócolis",     qtde: "50 g",  p: 0,     c: 0,     g: 0   },
-        { ing: "cenoura",      qtde: "50 g",  p: 0,     c: 0,     g: 0   }
-    ]},
-    { name: "lanche da tarde", items: [
-        { ing: "iogurte natural", qtde: "2 un", p: 13.2,  c: 17.2, g: 0   },
-        { ing: "aveia",           qtde: "30 g", p: 5.4,   c: 12.6, g: 3.3 },
-        { ing: "whey",            qtde: "20 g", p: 15.33, c: 2.67, g: 1.1 }
-    ]},
-    { name: "jantar", items: [
-        { ing: "arroz cozido", qtde: "150 g", p: 3.775, c: 42.15, g: 0.3 },
-        { ing: "frango",       qtde: "150 g", p: 32.25, c: 0,     g: 4.5 },
-        { ing: "salada",       qtde: "1 un",  p: 0,     c: 0,     g: 0   },
-        { ing: "brócolis",     qtde: "50 g",  p: 0,     c: 0,     g: 0   },
-        { ing: "cenoura",      qtde: "50 g",  p: 0,     c: 0,     g: 0   }
-    ]},
-    { name: "ceia", items: [
-        { ing: "ovos",             qtde: "3 un",  p: 19.5, c: 2.4,  g: 13.35 },
-        { ing: "batata congelada", qtde: "100 g", p: 1.8,  c: 14.7, g: 0     }
-    ]}
-];
-
-const meta = { p: 190, c: 180, g: 90 };
-
-const defaultMarket = [
-    { ing: "ovos",             semana: "42 un",   comprado: "" },
-    { ing: "proteína de soja", semana: "140 g",   comprado: "" },
-    { ing: "leite integral",   semana: "3500 ml", comprado: "" },
-    { ing: "whey",             semana: "350 g",   comprado: "" },
-    { ing: "arroz",            semana: "750 g",   comprado: "" },
-    { ing: "frango",           semana: "2100 g",  comprado: "" },
-    { ing: "salada",           semana: "14 un",   comprado: "" },
-    { ing: "brócolis",         semana: "700 g",   comprado: "" },
-    { ing: "cenoura",          semana: "700 g",   comprado: "" },
-    { ing: "iogurte natural",  semana: "14 un",   comprado: "" },
-    { ing: "aveia",            semana: "210 g",   comprado: "" },
-    { ing: "batata congelada", semana: "700 g",   comprado: "" }
-];
-
-let market = [];
-let openMeals = {};
-
-async function loadMarket() {
-    try {
-        const res = await fetch('/api/food/market');
-        if (res.ok) {
-            const data = await res.json();
-            market = data.length ? data : JSON.parse(JSON.stringify(defaultMarket));
-        } else {
-            market = JSON.parse(JSON.stringify(defaultMarket));
-        }
-    } catch { market = JSON.parse(JSON.stringify(defaultMarket)); }
-}
-
-async function saveMarket() {
-    fetch('/api/food/market', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(market)
-    });
-    document.getElementById('last-saved').textContent =
-        'salvo às ' + new Date().toLocaleTimeString('pt-BR');
-}
-
-function tot(items, k) { return items.reduce((a, i) => a + i[k], 0); }
-
-function renderMacros() {
-    const totalP = meals.reduce((a, m) => a + tot(m.items, 'p'), 0);
-    const totalC = meals.reduce((a, m) => a + tot(m.items, 'c'), 0);
-    const totalG = meals.reduce((a, m) => a + tot(m.items, 'g'), 0);
-
-    const items = [
-        { label: "proteínas",    val: totalP, meta: meta.p, color: "#a855f7" },
-        { label: "carboidratos", val: totalC, meta: meta.c, color: "#3b82f6" },
-        { label: "gorduras",     val: totalG, meta: meta.g, color: "#eab308" }
-    ];
-
-    document.getElementById('macro-cards').innerHTML = items.map(it => {
-        const pct = Math.round(it.val / it.meta * 100);
-        const ok = pct >= 90 && pct <= 115;
-        return `<div class="macro-card">
-            <div class="macro-label">${it.label}</div>
-            <div class="macro-value">${it.val.toFixed(1)}g</div>
-            <div class="macro-meta ${ok ? 'ok' : 'warn'}">meta ${it.meta}g · ${pct}%</div>
-            <div class="progress-bar">
-                <div class="progress-fill" style="width:${Math.min(100,pct)}%;background:${it.color}"></div>
-            </div>
-        </div>`;
-    }).join('');
-
-    const totalPct = Math.round((totalP/meta.p + totalC/meta.c + totalG/meta.g) / 3 * 100);
-    document.getElementById('macro-status').textContent = '🎯 ' + totalPct + '% da meta';
-}
-
-function renderMeals() {
-    document.getElementById('meals-list').innerHTML = meals.map((m, mi) => {
-        const mp = tot(m.items,'p'), mc = tot(m.items,'c'), mg = tot(m.items,'g');
-        const isOpen = openMeals[mi];
-        return `<div class="meal-card">
-            <div class="meal-header" onclick="toggleMeal(${mi})">
-                <div>
-                    <div class="meal-name">${m.name}</div>
-                    <div class="meal-macros">
-                        <span class="badge badge-p">P ${mp.toFixed(1)}g</span>&nbsp;
-                        <span class="badge badge-c">C ${mc.toFixed(1)}g</span>&nbsp;
-                        <span class="badge badge-g">G ${mg.toFixed(1)}g</span>
+    <div class="shell">
+        <header>
+            <div class="hero">
+                <div class="brand">
+                    <div class="brand-mark">🥗</div>
+                    <div>
+                        <div class="label">Diario alimentar</div>
+                        <h1><span>food</span>.conche.com.br</h1>
                     </div>
                 </div>
-                <span class="meal-chevron ${isOpen?'open':''}">▼</span>
+                <p class="subtitle">Registre o que voce come ao longo do dia, acompanhe calorias e macros e mantenha sua base de alimentos favorita sempre a um toque de distancia.</p>
+                <div class="inline-actions">
+                    <span class="pill" id="today-status">carregando...</span>
+                    <span class="pill" id="sync-status">sincronizando...</span>
+                </div>
             </div>
-            ${isOpen ? `<div class="meal-body">
-                <table class="ing-table">
-                    <thead><tr>
-                        <th>ingrediente</th><th>qtde.</th>
-                        <th><span class="badge badge-p">P</span></th>
-                        <th><span class="badge badge-c">C</span></th>
-                        <th><span class="badge badge-g">G</span></th>
-                    </tr></thead>
-                    <tbody>${m.items.map(it => `<tr>
-                        <td>${it.ing}</td><td>${it.qtde}</td>
-                        <td>${it.p.toFixed(1)}</td><td>${it.c.toFixed(1)}</td><td>${it.g.toFixed(1)}</td>
-                    </tr>`).join('')}</tbody>
-                </table>
-            </div>` : ''}
-        </div>`;
-    }).join('');
-}
+            <div class="top-actions">
+                <a class="ghost-btn" href="https://conche.com.br">home</a>
+            </div>
+        </header>
 
-function toggleMeal(i) { openMeals[i] = !openMeals[i]; renderMeals(); }
+        <section class="summary-grid" id="summary-grid"></section>
 
-function calcRestante(it) {
-    if (!it.comprado) return it.semana;
-    const sNum = parseFloat(it.semana), cNum = parseFloat(it.comprado);
-    if (isNaN(sNum) || isNaN(cNum)) return '—';
-    const unit = it.semana.replace(/[\d.]+\s*/, '');
-    return Math.round(sNum - cNum) + (unit ? ' ' + unit : '');
-}
+        <div class="top-actions" style="justify-content:space-between; margin-bottom:1rem;">
+            <div class="tabs">
+                <button class="tab active" data-tab="today" type="button">Hoje</button>
+                <button class="tab" data-tab="foods" type="button">Alimentos</button>
+                <button class="tab" data-tab="history" type="button">Historico</button>
+            </div>
+            <span class="pill" id="last-saved">sem sincronizacao ainda</span>
+        </div>
 
-function restanteClass(it) {
-    if (!it.comprado) return '';
-    const sNum = parseFloat(it.semana), cNum = parseFloat(it.comprado);
-    if (isNaN(sNum) || isNaN(cNum)) return '';
-    return cNum >= sNum ? 'ok' : 'warn';
-}
+        <section class="section active" id="today">
+            <div class="board-grid">
+                <div class="card">
+                    <div class="meal-head">
+                        <div>
+                            <div class="label">Dia atual</div>
+                            <h2 style="margin-top:0.35rem;">Refeicoes e progresso</h2>
+                        </div>
+                        <div class="inline-actions">
+                            <input id="current-date" type="date" style="max-width:190px;">
+                            <button class="danger-btn" id="clear-day-btn" type="button">limpar dia</button>
+                        </div>
+                    </div>
+                    <div class="meal-stack" id="meal-stack"></div>
+                </div>
 
-function renderMarket() {
-    document.getElementById('market-body').innerHTML = market.map((it, i) => {
-        const bought = !!it.comprado;
-        return `<tr class="${bought ? 'bought' : ''}" id="mrow-${i}">
-            <td class="ing-name">${it.ing}</td>
-            <td><input class="qty-input" value="${it.semana}"
-                oninput="updateSemana(${i}, this.value)"/></td>
-            <td><input class="qty-input" value="${it.comprado}" placeholder="—"
-                oninput="updateBought(${i}, this.value)"/></td>
-            <td class="restante ${restanteClass(it)}">${calcRestante(it)}</td>
-            <td><button class="check-btn ${bought ? 'done' : ''}"
-                onclick="toggleBought(${i})">${bought ? '✓' : '○'}</button></td>
-            <td><button class="del-btn" onclick="removeItem(${i})">×</button></td>
-        </tr>`;
-    }).join('');
-}
+                <div class="card">
+                    <div class="label">Metas do dia</div>
+                    <h2 style="margin-top:0.35rem;">Calorias e macros</h2>
+                    <div class="form-grid goals-grid">
+                        <label class="field">
+                            <span>Calorias</span>
+                            <input id="goal-calories" type="number" min="0" step="1" placeholder="2400">
+                        </label>
+                        <label class="field">
+                            <span>Proteina (g)</span>
+                            <input id="goal-protein" type="number" min="0" step="1" placeholder="190">
+                        </label>
+                        <label class="field">
+                            <span>Carbo (g)</span>
+                            <input id="goal-carbs" type="number" min="0" step="1" placeholder="220">
+                        </label>
+                        <label class="field">
+                            <span>Gordura (g)</span>
+                            <input id="goal-fat" type="number" min="0" step="1" placeholder="70">
+                        </label>
+                    </div>
+                    <div class="inline-actions" style="margin-top:1rem;">
+                        <button class="action-btn" id="save-goals-btn" type="button">salvar metas</button>
+                    </div>
+                    <div class="card" style="margin-top:1rem; padding:1rem;">
+                        <div class="label">Sugestoes</div>
+                        <div class="metric-note" style="margin-top:0.55rem;">Use porcoes padrao coerentes com o que voce realmente pesa no dia a dia. Isso melhora muito a leitura das barras e do total de calorias.</div>
+                    </div>
+                </div>
+            </div>
+        </section>
 
-function updateSemana(i, val) {
-    market[i].semana = val;
-    saveMarket();
-    const row = document.getElementById('mrow-' + i);
-    row.querySelector('.restante').textContent = calcRestante(market[i]);
-    row.querySelector('.restante').className = 'restante ' + restanteClass(market[i]);
-}
+        <section class="section" id="foods">
+            <div class="board-grid">
+                <div class="card">
+                    <div class="label">Base padrao</div>
+                    <h2 style="margin-top:0.35rem;">Seus alimentos</h2>
+                    <div class="food-list" id="food-list" style="margin-top:1rem;"></div>
+                </div>
+                <div class="card">
+                    <div class="label">Cadastro</div>
+                    <h2 id="food-editor-title" style="margin-top:0.35rem;">Novo alimento</h2>
+                    <div class="form-grid">
+                        <label class="field full">
+                            <span>Nome do alimento</span>
+                            <input id="food-name" placeholder="Ex: Frango grelhado">
+                        </label>
+                        <label class="field">
+                            <span>Porcao base</span>
+                            <input id="food-serving-amount" type="number" min="0" step="0.1" placeholder="100">
+                        </label>
+                        <label class="field">
+                            <span>Unidade</span>
+                            <input id="food-serving-unit" placeholder="g, ml, un, scoop">
+                        </label>
+                        <label class="field">
+                            <span>Proteina (g)</span>
+                            <input id="food-protein" type="number" min="0" step="0.1" placeholder="31">
+                        </label>
+                        <label class="field">
+                            <span>Carbo (g)</span>
+                            <input id="food-carbs" type="number" min="0" step="0.1" placeholder="0">
+                        </label>
+                        <label class="field">
+                            <span>Gordura (g)</span>
+                            <input id="food-fat" type="number" min="0" step="0.1" placeholder="3.6">
+                        </label>
+                    </div>
+                    <div class="inline-actions" style="margin-top:1rem;">
+                        <button class="action-btn" id="save-food-btn" type="button">salvar alimento</button>
+                        <button class="ghost-btn" id="clear-food-form-btn" type="button">limpar</button>
+                    </div>
+                </div>
+            </div>
+        </section>
 
-function removeItem(i) {
-    market.splice(i, 1);
-    saveMarket();
-    renderMarket();
-}
+        <section class="section" id="history">
+            <div class="card">
+                <div class="label">Linha do tempo</div>
+                <h2 style="margin-top:0.35rem;">Ultimos dias</h2>
+                <div class="history-list" id="history-list" style="margin-top:1rem;"></div>
+            </div>
+        </section>
+    </div>
 
-function updateBought(i, val) {
-    market[i].comprado = val;
-    saveMarket();
-    const row = document.getElementById('mrow-' + i);
-    const bought = !!val;
-    row.className = bought ? 'bought' : '';
-    row.querySelector('.ing-name').style.textDecoration = bought ? 'line-through' : 'none';
-    row.querySelector('.check-btn').className = 'check-btn' + (bought ? ' done' : '');
-    row.querySelector('.check-btn').textContent = bought ? '✓' : '○';
-    row.querySelector('.restante').textContent = calcRestante(market[i]);
-    row.querySelector('.restante').className = 'restante ' + restanteClass(market[i]);
-}
-
-function toggleBought(i) {
-    market[i].comprado = market[i].comprado ? '' : String(parseFloat(market[i].semana) || market[i].semana);
-    saveMarket();
-    renderMarket();
-}
-
-function addItem() {
-    const name = document.getElementById('new-item').value.trim();
-    const qty  = document.getElementById('new-qty').value.trim();
-    if (!name) return;
-    market.push({ ing: name, semana: qty || '—', comprado: '' });
-    document.getElementById('new-item').value = '';
-    document.getElementById('new-qty').value  = '';
-    saveMarket();
-    renderMarket();
-}
-
-function resetWeek() {
-    if (!confirm('Zerar tudo comprado e começar nova semana?')) return;
-    market.forEach(it => it.comprado = '');
-    saveMarket();
-    renderMarket();
-}
-
-function switchTab(tab, btn) {
-    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-    document.querySelectorAll('.tab').forEach(b => b.classList.remove('active'));
-    document.getElementById(tab).classList.add('active');
-    btn.classList.add('active');
-}
-
-async function init() {
-    await loadMarket();
-    renderMacros();
-    renderMeals();
-    renderMarket();
-}
-init();
-</script>
+    <script src="/app.js"></script>
 </body>
 </html>
