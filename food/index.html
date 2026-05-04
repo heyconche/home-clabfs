@@ -109,6 +109,15 @@
 
         .top-actions { justify-content: flex-end; }
 
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-bottom: 1rem;
+        }
+
         a, button { cursor: pointer; }
         button, input, select { font: inherit; }
 
@@ -538,7 +547,7 @@
 
         <section class="summary-grid" id="summary-grid"></section>
 
-        <div class="top-actions" style="justify-content:space-between; margin-bottom:1rem;">
+        <div class="topbar">
             <div class="tabs">
                 <button class="tab active" data-tab="today" type="button">Hoje</button>
                 <button class="tab" data-tab="foods" type="button">Alimentos</button>
