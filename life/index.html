@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <title>life.conche.com.br</title>
+    <meta name="theme-color" content="#7E17B6">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Life">
+    <meta name="description" content="Agenda semanal, inbox e rotina diaria inspirados no Structured Pro.">
+    <link rel="manifest" href="/manifest.webmanifest?v=1">
+    <link rel="apple-touch-icon" href="/icon.svg">
+    <link rel="icon" type="image/svg+xml" href="/icon.svg">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        :root {
+            --bg: #0f172a;
+            --bg-strong: #111827;
+            --surface: #1e293b;
+            --surface-strong: #273449;
+            --border: #334155;
+            --text: #f1f5f9;
+            --muted: #94a3b8;
+            --accent: #7E17B6;
+            --accent-strong: #9333ea;
+            --green: #22c55e;
+            --yellow: #eab308;
+            --red: #ef4444;
+            --blue: #38bdf8;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            color: var(--text);
+            background: var(--bg);
+            min-height: 100vh;
+            padding: 2rem 1rem 5rem;
+        }
+        .shell { width: min(1300px, 100%); margin: 0 auto; }
+        header {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 1rem;
+            align-items: start;
+            margin-bottom: 1.5rem;
+        }
+        .hero, .card, .timeline-item, .task-card, .week-mobile-day, .inbox-item {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 0.95rem;
+        }
+        .hero, .card { padding: 1.2rem; }
+        .hero { display: grid; gap: 0.75rem; }
+        .brand { display: flex; gap: 0.9rem; align-items: center; }
+        .brand-mark {
+            width: 3rem;
+            height: 3rem;
+            border-radius: 0.875rem;
+            display: grid;
+            place-items: center;
+            background: var(--accent);
+            color: var(--text);
+            font-weight: 900;
+            font-size: 1.55rem;
+        }
+        h1 {
+            font-size: clamp(2rem, 4vw, 3.1rem);
+            letter-spacing: -0.05em;
+            line-height: 0.95;
+        }
+        h1 span { color: var(--accent); }
+        .hero-copy {
+            font-size: 1rem;
+            line-height: 1.55;
+            color: var(--muted);
+            max-width: 62rem;
+        }
+        .hero-pills, .top-actions, .tabs, .inline-actions, .week-toolbar {
+            display: flex;
+            gap: 0.7rem;
+            flex-wrap: wrap;
+        }
+        .top-actions { justify-content: flex-end; }
+        a, button { cursor: pointer; }
+        button, input, textarea, select { font: inherit; }
+        .pill, .tab, .ghost-btn, .action-btn, .danger-btn, .mini-btn, .toggle-btn {
+            border-radius: 999px;
+            border: 1px solid var(--border);
+            background: var(--surface);
+            color: var(--text);
+        }
+        .pill {
+            padding: 0.45rem 0.8rem;
+            font-size: 0.78rem;
+            color: var(--muted);
+        }
+        .tab, .ghost-btn, .action-btn, .danger-btn, .mini-btn, .toggle-btn {
+            padding: 0.75rem 1rem;
+            text-decoration: none;
+            transition: transform 0.15s ease, border-color 0.15s ease, background 0.15s ease, color 0.15s ease;
+        }
+        .action-btn {
+            background: var(--accent);
+            border-color: var(--accent);
+            font-weight: 700;
+        }
+        .danger-btn { color: var(--red); }
+        .ghost-btn:hover, .action-btn:hover, .danger-btn:hover, .mini-btn:hover, .toggle-btn:hover, .tab:hover {
+            transform: translateY(-1px);
+            border-color: rgba(126, 23, 182, 0.45);
+        }
+        .tab.active {
+            background: var(--text);
+            color: var(--bg);
+            border-color: var(--text);
+            font-weight: 800;
+        }
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-bottom: 1rem;
+        }
+        .section { display: none; }
+        .section.active { display: block; }
+        .summary-grid, .today-grid, .planner-grid, .progress-grid {
+            display: grid;
+            gap: 1rem;
+        }
+        .summary-grid {
+            grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+            margin-bottom: 1rem;
+        }
+        .today-grid, .progress-grid {
+            grid-template-columns: 1.2fr 0.9fr;
+            align-items: start;
+        }
+        .planner-grid {
+            grid-template-columns: 0.95fr 1.05fr;
+            align-items: start;
+        }
+        .label {
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            color: var(--muted);
+        }
+        .metric-value {
+            font-size: 2rem;
+            font-weight: 800;
+            letter-spacing: -0.06em;
+            margin-top: 0.35rem;
+        }
+        .metric-note {
+            color: var(--muted);
+            font-size: 0.82rem;
+            margin-top: 0.3rem;
+            line-height: 1.45;
+        }
+        .field-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 0.9rem;
+            margin-top: 1rem;
+        }
+        .field-grid.triple { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+        .field { display: grid; gap: 0.45rem; }
+        .field.full { grid-column: 1 / -1; }
+        .field span {
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            color: var(--muted);
+        }
+        input, textarea, select {
+            width: 100%;
+            background: var(--bg-strong);
+            color: var(--text);
+            border: 1px solid var(--border);
+            border-radius: 0.85rem;
+            padding: 0.9rem 1rem;
+            outline: none;
+            appearance: none;
+        }
+        input::placeholder, textarea::placeholder { color: var(--muted); }
+        textarea { min-height: 120px; resize: vertical; }
+        .muted { color: var(--muted); }
+        .timeline-list, .task-stack, .inbox-list, .week-mobile-list { display: grid; gap: 0.85rem; }
+        .timeline-item, .task-card, .inbox-item, .week-mobile-day { padding: 1rem; }
+        .timeline-item.done, .inbox-item.done { opacity: 0.72; }
+        .task-head, .timeline-head, .inbox-head, .week-mobile-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            gap: 0.8rem;
+        }
+        .title {
+            font-size: 1.05rem;
+            font-weight: 800;
+            line-height: 1.1;
+        }
+        .subtitle {
+            margin-top: 0.2rem;
+            color: var(--muted);
+            font-size: 0.84rem;
+        }
+        .timeline-meta, .card-meta {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin-top: 0.85rem;
+        }
+        .chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            padding: 0.38rem 0.7rem;
+            border-radius: 999px;
+            background: var(--bg-strong);
+            border: 1px solid var(--border);
+            color: var(--muted);
+            font-size: 0.78rem;
+        }
+        .chip.is-on {
+            border-color: rgba(34, 197, 94, 0.45);
+            color: var(--text);
+        }
+        .empty {
+            padding: 1.25rem;
+            border-radius: 0.95rem;
+            border: 1px dashed var(--border);
+            color: var(--muted);
+            text-align: center;
+            line-height: 1.55;
+        }
+        .toggle-btn.is-on, .toggle-btn.is-done {
+            background: rgba(34, 197, 94, 0.12);
+            border-color: rgba(34, 197, 94, 0.4);
+            color: var(--green);
+        }
+        .timeline-item.done .title, .inbox-item.done .title { text-decoration: line-through; }
+        .progress-bar {
+            height: 8px;
+            background: var(--bg-strong);
+            border-radius: 999px;
+            overflow: hidden;
+            margin-top: 0.8rem;
+        }
+        .progress-fill { height: 100%; border-radius: 999px; }
+        .week-shell { overflow-x: auto; }
+        .week-grid {
+            --hour-height: 72px;
+            min-width: 980px;
+            display: grid;
+            grid-template-columns: 84px repeat(7, minmax(140px, 1fr));
+            border: 1px solid var(--border);
+            border-radius: 1rem;
+            overflow: hidden;
+            background: var(--surface);
+        }
+        .week-time-header, .week-day-header {
+            padding: 0.9rem 0.75rem;
+            border-right: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+            background: var(--surface-strong);
+        }
+        .week-day-header:last-child { border-right: none; }
+        .week-day-header strong { display: block; font-size: 0.95rem; }
+        .week-day-header span { display: block; margin-top: 0.2rem; color: var(--muted); font-size: 0.78rem; }
+        .week-times {
+            position: relative;
+            background: var(--surface-strong);
+            border-right: 1px solid var(--border);
+        }
+        .time-label {
+            position: absolute;
+            left: 0;
+            width: 100%;
+            transform: translateY(-0.5rem);
+            padding-left: 0.75rem;
+            font-size: 0.78rem;
+            color: var(--muted);
+        }
+        .week-column {
+            position: relative;
+            border-right: 1px solid var(--border);
+            background: linear-gradient(to bottom, rgba(148, 163, 184, 0.14) 1px, transparent 1px);
+            background-size: 100% calc(var(--hour-height) / 2);
+        }
+        .week-column:last-child { border-right: none; }
+        .week-lane { position: relative; height: calc(var(--hour-height) * 17); }
+        .week-block {
+            position: absolute;
+            left: 0.55rem;
+            right: 0.55rem;
+            border-radius: 0.95rem;
+            padding: 0.75rem;
+            color: white;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+        }
+        .week-block small {
+            display: block;
+            opacity: 0.85;
+            font-size: 0.72rem;
+            margin-bottom: 0.25rem;
+        }
+        .week-block strong {
+            display: block;
+            font-size: 0.92rem;
+            line-height: 1.2;
+        }
+        .week-mobile-list {
+            display: none;
+            margin-top: 1rem;
+        }
+        .inbox-toolbar {
+            display: grid;
+            grid-template-columns: 1.2fr 0.8fr 0.8fr;
+            gap: 0.9rem;
+            margin-bottom: 1rem;
+        }
+        .hint {
+            margin-top: 0.85rem;
+            color: var(--muted);
+            font-size: 0.84rem;
+            line-height: 1.5;
+        }
+        @media (max-width: 980px) {
+            header, .today-grid, .planner-grid, .progress-grid { grid-template-columns: 1fr; }
+            .field-grid, .field-grid.triple, .inbox-toolbar { grid-template-columns: 1fr; }
+            .week-grid { display: none; }
+            .week-mobile-list { display: grid; }
+        }
+        @media (max-width: 640px) {
+            body { padding: 1.25rem 0.8rem 4rem; }
+            .hero, .card { padding: 1rem; }
+            .brand-mark { width: 2.6rem; height: 2.6rem; font-size: 1.3rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="shell">
+        <header>
+            <div class="hero">
+                <div class="brand">
+                    <div class="brand-mark">L</div>
+                    <div><h1><span>life</span>.conche.com.br</h1></div>
+                </div>
+                <p class="hero-copy">Seu controlador de rotina: agenda semanal em blocos, lista sem horario para organizar depois, filtro rapido por contexto e lembretes opt-in por atividade.</p>
+                <div class="hero-pills">
+                    <span class="pill" id="hero-sync">sincronizando...</span>
+                    <span class="pill" id="hero-notify">avisos desativados</span>
+                    <span class="pill">structured mode para desktop e celular</span>
+                </div>
+            </div>
+            <div class="top-actions">
+                <a class="ghost-btn" href="https://conche.com.br">home</a>
+                <button class="ghost-btn" type="button" id="enable-notifications-btn">ativar avisos</button>
+                <button class="action-btn" type="button" id="quick-add-btn">nova atividade</button>
+            </div>
+        </header>
+
+        <div class="summary-grid" id="summary-grid"></div>
+
+        <div class="topbar">
+            <div class="tabs">
+                <button class="tab active" type="button" data-tab="today">Hoje</button>
+                <button class="tab" type="button" data-tab="week">Semana</button>
+                <button class="tab" type="button" data-tab="inbox">Sem horario</button>
+                <button class="tab" type="button" data-tab="planner">Planejar</button>
+                <button class="tab" type="button" data-tab="progress">Ritmo</button>
+            </div>
+            <span class="pill" id="sync-status">ultima sincronizacao --:--</span>
+        </div>
+
+        <section class="section active" id="today">
+            <div class="today-grid">
+                <div class="card">
+                    <div class="label">Agenda do dia</div>
+                    <h2 style="margin-top:0.35rem;">Hoje em foco</h2>
+                    <p class="hint" id="today-headline"></p>
+                    <div class="timeline-list" id="today-timeline" style="margin-top:1rem;"></div>
+                </div>
+                <div class="task-stack">
+                    <div class="card">
+                        <div class="label">Solto para hoje</div>
+                        <h3 style="margin-top:0.35rem;">Demandas sem horario</h3>
+                        <p class="hint">Coisas que ainda nao viraram bloco, mas ja merecem entrar no radar do dia.</p>
+                        <div class="task-stack" id="today-floating" style="margin-top:1rem;"></div>
+                    </div>
+                    <div class="card">
+                        <div class="label">Proximo passo</div>
+                        <h3 style="margin-top:0.35rem;">Atalho rapido</h3>
+                        <div class="task-stack" id="next-up-card" style="margin-top:1rem;"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="section" id="week">
+            <div class="card">
+                <div class="week-toolbar">
+                    <span class="pill" id="week-range">semana atual</span>
+                    <span class="pill" id="week-count">0 blocos</span>
+                </div>
+                <div class="week-shell" style="margin-top:1rem;"><div class="week-grid" id="week-grid"></div></div>
+                <div class="week-mobile-list" id="week-mobile-list"></div>
+            </div>
+        </section>
+
+        <section class="section" id="inbox">
+            <div class="card">
+                <div class="label">Backlog flexivel</div>
+                <h2 style="margin-top:0.35rem;">Atividades sem horario ou data ainda</h2>
+                <p class="hint">Use esse bloco para despejar demandas, ideias ou pendencias. Depois voce filtra e puxa para a agenda quando fizer sentido.</p>
+                <div class="inbox-toolbar">
+                    <label class="field">
+                        <span>Buscar</span>
+                        <input id="inbox-search" placeholder="Ex: pagar boleto, revisar curso, comprar algo...">
+                    </label>
+                    <label class="field">
+                        <span>Categoria</span>
+                        <select id="inbox-category-filter"></select>
+                    </label>
+                    <label class="field">
+                        <span>Status</span>
+                        <select id="inbox-status-filter">
+                            <option value="open">abertas</option>
+                            <option value="done">concluidas</option>
+                            <option value="all">todas</option>
+                        </select>
+                    </label>
+                </div>
+                <div class="inbox-list" id="inbox-list"></div>
+            </div>
+        </section>
+
+        <section class="section" id="planner">
+            <div class="planner-grid">
+                <div class="card">
+                    <div class="label">Editor</div>
+                    <h2 style="margin-top:0.35rem;" id="planner-title">Nova atividade</h2>
+                    <div class="field-grid">
+                        <label class="field full">
+                            <span>Titulo</span>
+                            <input id="task-title" placeholder="Ex: Estudar certificacao, passear com Joaquim, academia...">
+                        </label>
+                        <label class="field">
+                            <span>Categoria</span>
+                            <select id="task-category"></select>
+                        </label>
+                        <label class="field">
+                            <span>Tipo</span>
+                            <select id="task-mode">
+                                <option value="weekly">rotina semanal</option>
+                                <option value="dated">atividade com data</option>
+                                <option value="inbox">sem horario/data ainda</option>
+                            </select>
+                        </label>
+                    </div>
+                    <div class="field-grid triple">
+                        <label class="field" id="field-day">
+                            <span>Dia da semana</span>
+                            <select id="task-day"></select>
+                        </label>
+                        <label class="field" id="field-date">
+                            <span>Data</span>
+                            <input id="task-date" type="date">
+                        </label>
+                        <label class="field">
+                            <span>Tag</span>
+                            <input id="task-tag" placeholder="trabalho, casa, pet, foco...">
+                        </label>
+                    </div>
+                    <div class="field-grid triple">
+                        <label class="field" id="field-start">
+                            <span>Inicio</span>
+                            <input id="task-start" type="time">
+                        </label>
+                        <label class="field" id="field-end">
+                            <span>Fim</span>
+                            <input id="task-end" type="time">
+                        </label>
+                        <label class="field">
+                            <span>Lembrete</span>
+                            <select id="task-notify-lead">
+                                <option value="5">5 min antes</option>
+                                <option value="10" selected>10 min antes</option>
+                                <option value="15">15 min antes</option>
+                                <option value="30">30 min antes</option>
+                                <option value="60">1h antes</option>
+                            </select>
+                        </label>
+                    </div>
+                    <div class="inline-actions" style="margin-top:1rem;">
+                        <button class="toggle-btn" type="button" id="task-notify-toggle">aviso desligado</button>
+                        <button class="toggle-btn" type="button" id="task-today-toggle">puxar para hoje</button>
+                    </div>
+                    <label class="field full" style="margin-top:1rem;">
+                        <span>Notas</span>
+                        <textarea id="task-notes" placeholder="Contexto, checklist rapido, links mentais ou qualquer detalhe para a execucao ficar suave."></textarea>
+                    </label>
+                    <div class="inline-actions" style="margin-top:1rem;">
+                        <button class="action-btn" type="button" id="save-task-btn">salvar atividade</button>
+                        <button class="ghost-btn" type="button" id="reset-task-btn">limpar</button>
+                        <button class="danger-btn" type="button" id="delete-task-btn" hidden>excluir</button>
+                    </div>
+                    <p class="hint">No iPhone, os lembretes web dependem da permissao do navegador/PWA e funcionam melhor com o app instalado e aberto regularmente.</p>
+                </div>
+                <div class="task-stack">
+                    <div class="card">
+                        <div class="label">Atividades recorrentes</div>
+                        <h3 style="margin-top:0.35rem;">Blocos da semana</h3>
+                        <div class="task-stack" id="weekly-list" style="margin-top:1rem;"></div>
+                    </div>
+                    <div class="card">
+                        <div class="label">Com data definida</div>
+                        <h3 style="margin-top:0.35rem;">Pontuais e especiais</h3>
+                        <div class="task-stack" id="dated-list" style="margin-top:1rem;"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="section" id="progress">
+            <div class="progress-grid">
+                <div class="card">
+                    <div class="label">Consistencia</div>
+                    <h2 style="margin-top:0.35rem;">Ultimos 7 dias</h2>
+                    <div class="task-stack" id="streak-grid" style="margin-top:1rem;"></div>
+                </div>
+                <div class="task-stack">
+                    <div class="card">
+                        <div class="label">Panorama</div>
+                        <h3 style="margin-top:0.35rem;">Resumo rapido</h3>
+                        <div class="task-stack" id="progress-summary" style="margin-top:1rem;"></div>
+                    </div>
+                    <div class="card">
+                        <div class="label">Categorias</div>
+                        <h3 style="margin-top:0.35rem;">Distribuicao da rotina</h3>
+                        <div class="task-stack" id="category-progress" style="margin-top:1rem;"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+    <script src="/app.js"></script>
+</body>
+</html>

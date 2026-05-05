@@ -26,6 +26,7 @@ SAFE_HOSTS = {
     'cloud.conche.com.br',
     'food.conche.com.br',
     'lift.conche.com.br',
+    'life.conche.com.br',
 }
 
 
@@ -115,6 +116,7 @@ def logout():
 
 FOOD_MARKET_FILE = '/data/food-market.json'
 FOOD_STATE_FILE = '/data/food-state.json'
+LIFE_STATE_FILE = '/data/life-state.json'
 LIFT_STATE_FILE = '/data/lift-state.json'
 
 
@@ -185,6 +187,28 @@ def lift_state_post():
     data = request.get_json(force=True)
     os.makedirs(os.path.dirname(LIFT_STATE_FILE), exist_ok=True)
     with open(LIFT_STATE_FILE, 'w') as f:
+        json.dump(data, f)
+    return '', 204
+
+
+@app.route('/life/state', methods=['GET'])
+def life_state_get():
+    if not _auth_ok():
+        return '', 401
+    try:
+        with open(LIFE_STATE_FILE) as f:
+            return jsonify(json.load(f))
+    except FileNotFoundError:
+        return jsonify({})
+
+
+@app.route('/life/state', methods=['POST'])
+def life_state_post():
+    if not _auth_ok():
+        return '', 401
+    data = request.get_json(force=True)
+    os.makedirs(os.path.dirname(LIFE_STATE_FILE), exist_ok=True)
+    with open(LIFE_STATE_FILE, 'w') as f:
         json.dump(data, f)
     return '', 204
 

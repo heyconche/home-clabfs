@@ -49,6 +49,14 @@ services:
     networks: [clabfs]
 
   # ── Glances (API de stats do servidor) ─────────────────────────────────────
+  life:
+    image: nginx:alpine
+    container_name: life
+    restart: unless-stopped
+    volumes:
+      - ./life:/usr/share/nginx/html:ro
+    networks: [clabfs]
+
   glances:
     image: nicolargo/glances:latest
     container_name: glances

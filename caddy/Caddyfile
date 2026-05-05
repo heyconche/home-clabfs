@@ -115,6 +115,21 @@ lift.conche.com.br {
 }
 
 # ── InfraDash ──────────────────────────────────────────────────────────────────
+life.conche.com.br {
+    import no_cache
+
+    forward_auth auth:5001 {
+        uri /verify
+    }
+    handle /api/* {
+        uri strip_prefix /api
+        reverse_proxy auth:5001
+    }
+    handle {
+        reverse_proxy life:80
+    }
+}
+
 cloud.conche.com.br {
     import no_cache
 
